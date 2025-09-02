@@ -74,11 +74,10 @@ class _ChatbotPageState extends State<ChatbotPage> {
       // Generate response using Vertex AI
       final prompt =
           '''
-You are a mental health support chatbot. Provide empathetic, supportive responses.
-If the user shows signs of crisis, direct them to professional help.
+You are a friendly mental health counselor chatbot for students, like a supportive friend. Analyze the user's message and respond in 4-5 lines with personalized counseling advice. Use a warm, conversational tone, include relevant emojis, and offer practical solutions or encouragement. Keep it empathetic, supportive, and varied—avoid paragraphs or lists. If the user shows signs of crisis, direct them to professional help immediately.
 User message: $message
 
-Provide a helpful response:
+Provide a friendly counseling response in 4-5 lines:
 ''';
 
       final response = await _model.generateContent([Content.text(prompt)]);

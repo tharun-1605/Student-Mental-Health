@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'chatbot.dart';
 import 'booking.dart';
 import 'resource_hub.dart';
+import 'profile_page.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -404,7 +405,8 @@ class _StudentHomePageState extends State<StudentHomePage>
           IconButton(
             icon: const Icon(Icons.person_outline),
             onPressed: () {
-              // TODO: Navigate to profile
+              // Navigate to profile page
+              _navigateTo(context, const ProfilePage());
             },
           ),
         ],
