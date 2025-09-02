@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "647012769364",
+    "project_id": "sihproject-a3ace",
+    "storage_bucket": "sihproject-a3ace.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647012769364:android:148bfa903fba3647f317c1",
+        "android_client_info": {
+          "package_name": "student.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw1Us4-22zRjjsGhiplNJ0bwEgww_8xBA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
