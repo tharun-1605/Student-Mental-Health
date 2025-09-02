@@ -7,10 +7,15 @@ import 'mentor_register.dart';
 import 'student_register.dart';
 import 'student_home.dart';
 import 'mentor_home.dart';
+import 'fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // Initialize FCM service
+  await FCMService().initialize();
+
   runApp(const MyApp());
 }
 

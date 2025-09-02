@@ -454,6 +454,16 @@ class _StudentHomePageState extends State<StudentHomePage>
                     const SizedBox(height: 16),
 
                     _buildFeatureCard(
+                      title: 'My Bookings',
+                      subtitle: 'View your booking status and details',
+                      icon: Icons.event_note_outlined,
+                      color: Colors.green,
+                      onTap: () => _navigateTo(context, const BookingStatusPage()),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    _buildFeatureCard(
                       title: 'Resource Hub',
                       subtitle: 'Educational content and self-help materials',
                       icon: Icons.video_library_outlined,

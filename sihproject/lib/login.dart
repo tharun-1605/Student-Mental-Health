@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'mentor_home.dart';
 import 'student_home.dart';
+import 'fcm_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -137,6 +138,9 @@ class _LoginPageState extends State<LoginPage>
       }
 
       if (mounted) {
+        // Send login notification
+        await FCMService().sendLoginNotification();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(

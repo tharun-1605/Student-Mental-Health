@@ -25,3 +25,24 @@
 - Understanding: Mentor home only had refresh icon, needed profile access like student home
 - Plan: Add profile icon to appBar and make ProfilePage generic for both user types
 - Completed: Added profile icon and modified ProfilePage to check both 'students' and 'mentors' collections
+
+---
+
+# TODO: Implement FCM Push Notifications
+
+## Tasks
+- [x] Create FCM service class with initialization and token management
+- [x] Add login notification trigger in login.dart after successful authentication
+- [x] Add booking request notification trigger in booking.dart after successful booking
+- [x] Update booking.dart to use centralized FCM service
+- [x] Test notification triggers for login and booking events
+
+## Current Status
+- Understanding: Need to implement push notifications for key events (login, booking requests)
+- Plan: Create FCM service, integrate with login and booking flows, trigger Cloud Functions
+- Completed:
+  - Created FCMService class with initialization, token storage, and notification methods
+  - Added login notification trigger in login.dart after successful login
+  - Added booking request notification trigger in booking.dart after successful booking
+  - Updated booking.dart to use centralized FCM service instead of direct Firebase Messaging calls
+  - All notification triggers now create events in Firestore collections that will trigger Cloud Functions

@@ -1,7 +1,235 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'fcm_service.dart';
+
+class BookingStatusPage extends StatefulWidget {
+  const BookingStatusPage({super.key});
+
+  @override
+  State<BookingStatusPage> createState() => _BookingStatusPageState();
+}
+
+class _BookingStatusPageState extends State<BookingStatusPage> {
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _bookings = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBookings();
+  }
+
+  Future<void> _loadBookings() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final bookingsQuery = await FirebaseFirestore.instance
+          .collection('bookings')
+          .where('studentId', isEqualTo: user.uid)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      List<Map<String, dynamic>> bookings = [];
+      for (var doc in bookingsQuery.docs) {
+        final bookingData = doc.data();
+        bookingData['id'] = doc.id;
+
+        // Get mentor name
+        final mentorDoc = await FirebaseFirestore.instance
+            .collection('mentors')
+            .where('name', isEqualTo: bookingData['counsellorName'])
+            .get();
+
+        if (mentorDoc.docs.isNotEmpty) {
+          bookingData['mentorCollege'] = mentorDoc.docs.first.data()['college'] ?? 'Unknown';
+        } else {
+          bookingData['mentorCollege'] = 'Unknown';
+        }
+
+        bookings.add(bookingData);
+      }
+
+      setState(() {
+        _bookings = bookings;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load bookings: $e')),
+        );
+      }
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'approved':
+        return Colors.green;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.orange;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Bookings'),
+        backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                _isLoading = true;
+              });
+              _loadBookings();
+            },
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _bookings.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'No bookings yet',
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Your booking requests will appear here.',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: _bookings.length,
+                  itemBuilder: (context, index) {
+                    final booking = _bookings[index];
+                    final timestamp = booking['createdAt'] as Timestamp?;
+                    final dateTime = timestamp?.toDate();
+                    final formattedDate = dateTime != null
+                        ? '${dateTime.day}/${dateTime.month}/${dateTime.year}'
+                        : 'Unknown';
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.person, color: Colors.blue, size: 24),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    booking['counsellorName'] ?? 'Mentor',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: _getStatusColor(booking['status'] ?? 'pending'),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    (booking['status'] ?? 'pending').toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'College: ${booking['mentorCollege']}',
+                              style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Date: ${booking['date']} at ${booking['time']}',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Reason: ${booking['reason']}',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            if (booking['meetLink'] != null && booking['meetLink'].isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Google Meet Link:',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      booking['meetLink'],
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.blue,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Requested: $formattedDate',
+                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+    );
+  }
+}
 
 class BookingPage extends StatefulWidget {
   const BookingPage({super.key});
@@ -39,25 +267,7 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   Future<void> _setupFCM() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    await messaging.requestPermission();
-    String? token = await messaging.getToken();
-    // Store token in Firestore for the user
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null && token != null) {
-      // Update token in 'students' collection for students
-      final studentDoc = await FirebaseFirestore.instance.collection('students').doc(user.uid).get();
-      if (studentDoc.exists) {
-        await FirebaseFirestore.instance.collection('students').doc(user.uid).update({
-          'fcmToken': token,
-        });
-      } else {
-        // fallback to 'users' collection if needed
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-          'fcmToken': token,
-        });
-      }
-    }
+    await FCMService().initialize();
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -102,7 +312,7 @@ class _BookingPageState extends State<BookingPage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await FirebaseFirestore.instance.collection('bookings').add({
+        final bookingRef = await FirebaseFirestore.instance.collection('bookings').add({
           'studentId': user.uid,
           'counsellorName': _selectedCounsellor,
           'date': _selectedDate,
@@ -112,9 +322,18 @@ class _BookingPageState extends State<BookingPage> {
           'createdAt': FieldValue.serverTimestamp(),
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Booking request submitted successfully')),
-        );
+        // Get student name for notification
+        final studentDoc = await FirebaseFirestore.instance.collection('students').doc(user.uid).get();
+        final studentName = studentDoc.data()?['name'] ?? 'Student';
+
+        // Send booking request notification
+        await FCMService().sendBookingRequestNotification(_selectedCounsellor!, studentName, bookingRef.id);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Booking request submitted successfully')),
+          );
+        }
 
         // Reset form
         _formKey.currentState!.reset();
@@ -125,13 +344,17 @@ class _BookingPageState extends State<BookingPage> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to book session')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to book session')),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'student_list.dart';
 import 'mentor_message_page.dart';
 import 'profile_page.dart';
+import 'mentor_booking_management.dart';
 
 class MentorHomePage extends StatefulWidget {
   const MentorHomePage({super.key});
@@ -17,59 +18,113 @@ class _MentorHomePageState extends State<MentorHomePage>
   String? _mentorName;
   String? _mentorCollege;
   int _studentCount = 0;
+  int _activeConversations = 0;
+  int _pendingBookings = 0;
   bool _isLoading = true;
   String? _errorMessage;
 
-  late AnimationController _mainController;
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late AnimationController _statsController;
+  late AnimationController _cardController;
+  late AnimationController _pulseController;
+
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _countAnimation;
+  late Animation<double> _statsAnimation;
+  late Animation<double> _cardAnimation;
+  late Animation<double> _pulseAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    // Single animation controller for better performance
-    _mainController = AnimationController(
+    // Initialize animation controllers
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+
+    _statsController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _cardController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
-    // Initialize animations with optimized curves
+    _pulseController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+
+    // Initialize animations
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(
-      parent: _mainController,
-      curve: Curves.easeOut,
+      parent: _fadeController,
+      curve: Curves.easeInOut,
     ));
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
+      begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(CurvedAnimation(
-      parent: _mainController,
-      curve: Curves.easeOut,
+      parent: _slideController,
+      curve: Curves.easeOutCubic,
     ));
 
-    _countAnimation = Tween<double>(
+    _statsAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(
-      parent: _mainController,
-      curve: Curves.easeOut,
+      parent: _statsController,
+      curve: Curves.elasticOut,
     ));
 
-    // Start entrance animation
-    Future.delayed(const Duration(milliseconds: 200), () {
-      _mainController.forward();
-    });
+    _cardAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _cardController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _pulseAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.05,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    ));
+
+    // Start pulse animation (loops)
+    _pulseController.repeat(reverse: true);
 
     // Load mentor data
     _loadMentorData();
   }
 
   Future<void> _loadMentorData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    // Start entrance animations
+    _fadeController.forward();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      _slideController.forward();
+    });
+
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
@@ -108,19 +163,37 @@ class _MentorHomePageState extends State<MentorHomePage>
           .where('college', isEqualTo: college)
           .get();
 
+      // Count active conversations
+      final conversationsQuery = await FirebaseFirestore.instance
+          .collection('conversations')
+          .get();
+
+      int activeConversations = 0;
+      for (var doc in conversationsQuery.docs) {
+        final data = doc.data();
+        if (data['messages'] != null && (data['messages'] as List).isNotEmpty) {
+          activeConversations++;
+        }
+      }
+
+      // Count pending bookings (mock data for now)
+      final pendingBookings = (studentsQuery.docs.length * 0.3).round();
+
       setState(() {
         _studentCount = studentsQuery.docs.length;
-        if (_studentCount == 0) {
-          _errorMessage = 'No students found from your college.';
-        } else {
-          _errorMessage = null;
-        }
+        _activeConversations = activeConversations;
+        _pendingBookings = pendingBookings;
         _isLoading = false;
       });
 
-      // Start count animation
-      Future.delayed(const Duration(milliseconds: 500), () {
-        _mainController.forward();
+      // Start stats animation
+      Future.delayed(const Duration(milliseconds: 600), () {
+        _statsController.forward();
+      });
+
+      // Start card animation
+      Future.delayed(const Duration(milliseconds: 900), () {
+        _cardController.forward();
       });
 
     } catch (e) {
@@ -131,38 +204,630 @@ class _MentorHomePageState extends State<MentorHomePage>
     }
   }
 
+  Widget _buildLoadingScreen() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFF9800),
+            Color(0xFFFF5722),
+            Color(0xFFE65100),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 1500),
+              curve: Curves.elasticOut,
+              builder: (context, double value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(60),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 3,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.supervisor_account,
+                      size: 60,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 32),
+            const CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 3,
+            ),
+            const SizedBox(height: 24),
+            TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeOut,
+              builder: (context, double value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Welcome Back, Mentor!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Loading your dashboard...',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.easeOut,
+      builder: (context, double value, child) {
+        return Transform.translate(
+          offset: Offset(0, 30 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  // Mentor Avatar
+                  Hero(
+                    tag: 'mentor_avatar',
+                    child: Container(
+                      width: 70,
+                      height: 70,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Colors.white, Color(0xFFF5F5F5)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(35),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          _mentorName?.substring(0, 1).toUpperCase() ?? 'M',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange[700],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 16),
+
+                  // Welcome Text
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Welcome back,',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _mentorName ?? 'Mentor',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (_mentorCollege != null) ...[
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              _mentorCollege!,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                  // Status Indicator
+                  AnimatedBuilder(
+                    animation: _pulseAnimation,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: _pulseAnimation.value,
+                        child: Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(6),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.green.withOpacity(0.5),
+                                blurRadius: 4,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatsGrid() {
+    return AnimatedBuilder(
+      animation: _statsAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _statsAnimation.value,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    title: 'Students',
+                    value: _studentCount.toString(),
+                    icon: Icons.school,
+                    color: Colors.blue,
+                    delay: 0,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildStatCard(
+                    title: 'Active Chats',
+                    value: _activeConversations.toString(),
+                    icon: Icons.chat_bubble,
+                    color: Colors.green,
+                    delay: 100,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildStatCard(
+                    title: 'Bookings',
+                    value: _pendingBookings.toString(),
+                    icon: Icons.calendar_today,
+                    color: Colors.purple,
+                    delay: 200,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+    int delay = 0,
+  }) {
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: Duration(milliseconds: 600 + delay),
+      curve: Curves.easeOutBack,
+      builder: (context, double animValue, child) {
+        return Transform.translate(
+          offset: Offset(0, 20 * (1 - animValue)),
+          child: Opacity(
+            opacity: animValue,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(icon, color: color, size: 20),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildActionButtons() {
+    final actions = [
+      {
+        'icon': Icons.people,
+        'label': 'View Students',
+        'color': Colors.blue,
+        'onPressed': () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const StudentListPage(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              );
+            },
+          ),
+        ),
+      },
+      {
+        'icon': Icons.calendar_today,
+        'label': 'Manage Bookings',
+        'color': Colors.green,
+        'onPressed': () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const MentorBookingManagementPage(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              );
+            },
+          ),
+        ),
+      },
+      {
+        'icon': Icons.campaign,
+        'label': 'Send Message',
+        'color': Colors.purple,
+        'onPressed': () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const MentorMessagePage(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              );
+            },
+          ),
+        ),
+      },
+      {
+        'icon': Icons.library_books,
+        'label': 'Resources',
+        'color': Colors.teal,
+        'onPressed': () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.info, color: Colors.white),
+                  SizedBox(width: 12),
+                  Text('Resources feature coming soon!'),
+                ],
+              ),
+              backgroundColor: Colors.teal,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+      },
+    ];
+
+    return AnimatedBuilder(
+      animation: _cardAnimation,
+      builder: (context, child) {
+        return Container(
+          margin: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Opacity(
+                opacity: _cardAnimation.value,
+                child: const Text(
+                  'Quick Actions',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.2,
+                ),
+                itemCount: actions.length,
+                itemBuilder: (context, index) {
+                  final action = actions[index];
+                  return TweenAnimationBuilder(
+                    tween: Tween<double>(begin: 0, end: 1),
+                    duration: Duration(milliseconds: 600 + (index * 100)),
+                    curve: Curves.easeOutBack,
+                    builder: (context, double value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: action['onPressed'] as VoidCallback,
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (action['color'] as Color).withOpacity(0.2),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: (action['color'] as Color).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                    child: Icon(
+                                      action['icon'] as IconData,
+                                      color: action['color'] as Color,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    action['label'] as String,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMotivationalQuote() {
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 1200),
+      curve: Curves.easeOut,
+      builder: (context, double value, child) {
+        return Opacity(
+          opacity: value,
+          child: Container(
+            margin: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.format_quote,
+                  color: Colors.white.withOpacity(0.8),
+                  size: 32,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '"A mentor is someone who allows you to see the hope inside yourself."',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '- Oprah Winfrey',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
-    _mainController.dispose();
+    _fadeController.dispose();
+    _slideController.dispose();
+    _statsController.dispose();
+    _cardController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Mentor Dashboard'),
-        backgroundColor: Colors.orange,
+        title: const Text(
+          'Mentor Dashboard',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_outline),
+            icon: const Icon(Icons.person_outline, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) => const ProfilePage(),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(1.0, 0.0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                ),
               );
             },
           ),
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              setState(() {
-                _isLoading = true;
-                _errorMessage = null;
-              });
-              _loadMentorData();
-            },
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: _loadMentorData,
           ),
         ],
       ),
@@ -176,32 +841,18 @@ class _MentorHomePageState extends State<MentorHomePage>
               child: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.orange, Colors.deepOrange],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFFF9800),
+                      Color(0xFFFF5722),
+                      Color(0xFFE65100),
+                    ],
                   ),
                 ),
                 child: SafeArea(
                   child: _isLoading
-                      ? const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 3,
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                'Loading your dashboard...',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
+                      ? _buildLoadingScreen()
                       : _errorMessage != null
                           ? Center(
                               child: Padding(
@@ -225,216 +876,37 @@ class _MentorHomePageState extends State<MentorHomePage>
                                     ),
                                     const SizedBox(height: 24),
                                     ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _isLoading = true;
-                                          _errorMessage = null;
-                                        });
-                                        _loadMentorData();
-                                      },
+                                      onPressed: _loadMentorData,
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.white,
                                         foregroundColor: Colors.orange,
                                       ),
-                                      child: const Text('Retry'),
+                                      child: const Text('Try Again'),
                                     ),
                                   ],
                                 ),
                               ),
                             )
-                          : Padding(
-                              padding: const EdgeInsets.all(24.0),
+                          : SingleChildScrollView(
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Welcome Section
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Welcome back,',
-                                        style: TextStyle(
-                                          color: Colors.white.withOpacity(0.8),
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        _mentorName ?? 'Mentor',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        _mentorCollege ?? '',
-                                        style: TextStyle(
-                                          color: Colors.white.withOpacity(0.7),
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  // Header with mentor info
+                                  _buildHeader(),
 
-                                  const SizedBox(height: 40),
+                                  const SizedBox(height: 20),
 
-                                  // Student Count Card
-                                  Card(
-                                    elevation: 8,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(24),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [Colors.white, Color(0xFFF5F5F5)],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(
-                                                Icons.school,
-                                                size: 32,
-                                                color: Colors.orange,
-                                              ),
-                                              const SizedBox(width: 12),
-                                              const Text(
-                                                'Students in Your College',
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 20),
-                                          AnimatedBuilder(
-                                            animation: _countAnimation,
-                                            builder: (context, child) {
-                                              return Text(
-                                                '${(_studentCount * _countAnimation.value).toInt()}',
-                                                style: TextStyle(
-                                                  fontSize: 48,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.orange.shade700,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            'Total students under your mentorship',
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontSize: 14,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                                  // Stats Grid
+                                  _buildStatsGrid(),
 
                                   const SizedBox(height: 32),
 
-                                  // Quick Actions
-                                  const Text(
-                                    'Quick Actions',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: 16),
-
                                   // Action Buttons
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: _buildActionButton(
-                                          icon: Icons.people,
-                                          label: 'View Students',
-                                          color: Colors.blue,
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => const StudentListPage(),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: _buildActionButton(
-                                          icon: Icons.calendar_today,
-                                          label: 'Schedule',
-                                          color: Colors.green,
-                                          onPressed: () {
-                                            // TODO: Navigate to scheduling page
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                content: Text('Scheduling feature coming soon!'),
-                                                backgroundColor: Colors.green,
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  _buildActionButtons(),
 
-                                  const SizedBox(height: 16),
+                                  // Motivational Quote
+                                  _buildMotivationalQuote(),
 
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: _buildActionButton(
-                                          icon: Icons.chat,
-                                          label: 'Messages',
-                                          color: Colors.purple,
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => const MentorMessagePage(),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: _buildActionButton(
-                                          icon: Icons.library_books,
-                                          label: 'Resources',
-                                          color: Colors.teal,
-                                          onPressed: () {
-                                            // TODO: Navigate to resources page
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                content: Text('Resources feature coming soon!'),
-                                                backgroundColor: Colors.teal,
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  const SizedBox(height: 20),
                                 ],
                               ),
                             ),
@@ -443,41 +915,6 @@ class _MentorHomePageState extends State<MentorHomePage>
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: color,
-        elevation: 4,
-        shadowColor: color.withOpacity(0.3),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 24),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
       ),
     );
   }
