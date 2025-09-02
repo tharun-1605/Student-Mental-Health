@@ -5,6 +5,7 @@ import 'chatbot.dart';
 import 'booking.dart';
 import 'resource_hub.dart';
 import 'profile_page.dart';
+import 'notifications_page.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -15,8 +16,7 @@ class StudentHomePage extends StatefulWidget {
 
 class _StudentHomePageState extends State<StudentHomePage>
     with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late AnimationController _slideController;
+  late AnimationController _mainController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
@@ -28,35 +28,27 @@ class _StudentHomePageState extends State<StudentHomePage>
   void initState() {
     super.initState();
 
-    // Initialize animation controllers
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-
-    _slideController = AnimationController(
+    // Single animation controller for better performance
+    _mainController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
-    // Initialize animations
+    // Initialize animations with optimized curves
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _mainController, curve: Curves.easeOut),
     );
 
     _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+          CurvedAnimation(parent: _mainController, curve: Curves.easeOut),
         );
 
     _loadUserData();
 
-    // Start entrance animations
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _fadeController.forward();
-    });
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _slideController.forward();
+    // Start entrance animation
+    Future.delayed(const Duration(milliseconds: 200), () {
+      _mainController.forward();
     });
   }
 
@@ -111,76 +103,62 @@ class _StudentHomePageState extends State<StudentHomePage>
     required IconData icon,
     required VoidCallback onTap,
     required Color color,
-    required int delay,
   }) {
-    return TweenAnimationBuilder(
-      tween: Tween<double>(begin: 0, end: 1),
-      duration: Duration(milliseconds: 600 + delay),
-      curve: Curves.elasticOut,
-      builder: (context, double value, child) {
-        return Transform.scale(
-          scale: value,
-          child: Transform.translate(
-            offset: Offset(0, 30 * (1 - value)),
-            child: Card(
-              elevation: 4,
-              shadowColor: color.withOpacity(0.3),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+    return Card(
+      elevation: 4,
+      shadowColor: color.withOpacity(0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Icon(icon, color: color, size: 30),
               ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(16),
-                onTap: onTap,
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Icon(icon, color: color, size: 30),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              subtitle,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
                       ),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.grey[400],
-                        size: 18,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey[400],
+                size: 18,
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -381,8 +359,7 @@ class _StudentHomePageState extends State<StudentHomePage>
 
   @override
   void dispose() {
-    _fadeController.dispose();
-    _slideController.dispose();
+    _mainController.dispose();
     super.dispose();
   }
 
@@ -399,7 +376,7 @@ class _StudentHomePageState extends State<StudentHomePage>
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
-              // TODO: Navigate to notifications
+              _navigateTo(context, const NotificationsPage());
             },
           ),
           IconButton(
@@ -462,7 +439,6 @@ class _StudentHomePageState extends State<StudentHomePage>
                       icon: Icons.chat_bubble_outline,
                       color: Colors.blue,
                       onTap: () => _navigateTo(context, const ChatbotPage()),
-                      delay: 0,
                     ),
 
                     const SizedBox(height: 16),
@@ -473,7 +449,6 @@ class _StudentHomePageState extends State<StudentHomePage>
                       icon: Icons.calendar_today_outlined,
                       color: Colors.orange,
                       onTap: () => _navigateTo(context, const BookingPage()),
-                      delay: 100,
                     ),
 
                     const SizedBox(height: 16),
@@ -485,7 +460,6 @@ class _StudentHomePageState extends State<StudentHomePage>
                       color: Colors.purple,
                       onTap: () =>
                           _navigateTo(context, const ResourceHubPage()),
-                      delay: 200,
                     ),
 
                     const SizedBox(height: 16),
@@ -504,7 +478,6 @@ class _StudentHomePageState extends State<StudentHomePage>
                           ),
                         );
                       },
-                      delay: 300,
                     ),
 
                     const SizedBox(height: 32),
@@ -553,7 +526,8 @@ class _StudentHomePageState extends State<StudentHomePage>
                                 const SizedBox(height: 12),
                                 ElevatedButton(
                                   onPressed: () {
-                                    // TODO: Show emergency contacts
+                               
+                                // TODO: Show emergency contacts
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red[600],

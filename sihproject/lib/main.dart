@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login.dart';
 import 'mentor_register.dart';
 import 'student_register.dart';
+import 'student_home.dart';
+import 'mentor_home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,8 +29,81 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      home: const WelcomePage(),
+      home: const AuthWrapper(),
       debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  Future<Widget> _getPageForUser(User? user) async {
+    if (user == null) {
+      return const WelcomePage();
+    }
+
+    // Check if user is student
+    final studentDoc = await FirebaseFirestore.instance
+        .collection('students')
+        .doc(user.uid)
+        .get();
+
+    if (studentDoc.exists) {
+      return const StudentHomePage();
+    }
+
+    // Check if user is mentor
+    final mentorDoc = await FirebaseFirestore.instance
+        .collection('mentors')
+        .doc(user.uid)
+        .get();
+
+    if (mentorDoc.exists) {
+      return const MentorHomePage();
+    }
+
+    // User exists in auth but not in collections, show welcome page
+    return const WelcomePage();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return const WelcomePage();
+        }
+
+        final user = snapshot.data;
+        return FutureBuilder<Widget>(
+          future: _getPageForUser(user),
+          builder: (context, futureSnapshot) {
+            if (futureSnapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            if (futureSnapshot.hasError) {
+              return const WelcomePage();
+            }
+
+            return futureSnapshot.data ?? const WelcomePage();
+          },
+        );
+      },
     );
   }
 }

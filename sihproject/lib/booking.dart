@@ -45,9 +45,18 @@ class _BookingPageState extends State<BookingPage> {
     // Store token in Firestore for the user
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && token != null) {
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-        'fcmToken': token,
-      });
+      // Update token in 'students' collection for students
+      final studentDoc = await FirebaseFirestore.instance.collection('students').doc(user.uid).get();
+      if (studentDoc.exists) {
+        await FirebaseFirestore.instance.collection('students').doc(user.uid).update({
+          'fcmToken': token,
+        });
+      } else {
+        // fallback to 'users' collection if needed
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+          'fcmToken': token,
+        });
+      }
     }
   }
 

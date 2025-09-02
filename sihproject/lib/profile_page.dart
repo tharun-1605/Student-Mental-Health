@@ -93,33 +93,61 @@ class _ProfilePageState extends State<ProfilePage>
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        final doc = await FirebaseFirestore.instance
+        // First check if user is a student
+        final studentDoc = await FirebaseFirestore.instance
             .collection('students')
             .doc(user.uid)
             .get();
 
-        if (doc.exists) {
+        if (studentDoc.exists) {
           setState(() {
-            _studentName = doc.data()!['name'] ?? '';
+            _studentName = studentDoc.data()!['name'] ?? '';
             _email = user.email ?? '';
-            _collegeName = doc.data()!['college'] ?? '';
-            _department = doc.data()!['department'] ?? '';
-            _rollNumber = doc.data()!['rollNumber'] ?? '';
+            _collegeName = studentDoc.data()!['college'] ?? '';
+            _department = studentDoc.data()!['department'] ?? '';
+            _rollNumber = studentDoc.data()!['rollNumber'] ?? '';
             _isLoading = false;
           });
+        } else {
+          // Check if user is a mentor
+          final mentorDoc = await FirebaseFirestore.instance
+              .collection('mentors')
+              .doc(user.uid)
+              .get();
 
-          // Start animations after data loads
-          _fadeController.forward();
-          Future.delayed(const Duration(milliseconds: 200), () {
-            _slideController.forward();
-          });
-          Future.delayed(const Duration(milliseconds: 400), () {
-            _avatarController.forward();
-          });
-          Future.delayed(const Duration(milliseconds: 600), () {
-            _cardController.forward();
-          });
+          if (mentorDoc.exists) {
+            setState(() {
+              _studentName = mentorDoc.data()!['name'] ?? '';
+              _email = user.email ?? '';
+              _collegeName = mentorDoc.data()!['college'] ?? '';
+              _department = '';
+              _rollNumber = '';
+              _isLoading = false;
+            });
+          } else {
+            // User exists in auth but not in collections
+            setState(() {
+              _studentName = '';
+              _email = user.email ?? '';
+              _collegeName = '';
+              _department = '';
+              _rollNumber = '';
+              _isLoading = false;
+            });
+          }
         }
+
+        // Start animations after data loads
+        _fadeController.forward();
+        Future.delayed(const Duration(milliseconds: 200), () {
+          _slideController.forward();
+        });
+        Future.delayed(const Duration(milliseconds: 400), () {
+          _avatarController.forward();
+        });
+        Future.delayed(const Duration(milliseconds: 600), () {
+          _cardController.forward();
+        });
       }
     } catch (e) {
       setState(() {
@@ -177,8 +205,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   void _logout() async {
     await FirebaseAuth.instance.signOut();
-    if (!mounted) return;
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    // No need for manual navigation - AuthWrapper will handle it automatically
   }
 
   Widget _buildProfileHeader() {
