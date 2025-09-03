@@ -152,6 +152,26 @@ class _StudentListPageState extends State<StudentListPage>
             .get();
 
         studentData['conversationCount'] = conversationCount.docs.length;
+
+        // Get screening status for this student
+        final screeningQuery = await FirebaseFirestore.instance
+            .collection('screenings')
+            .where('userId', isEqualTo: doc.id)
+            .orderBy('timestamp', descending: true)
+            .limit(1)
+            .get();
+
+        if (screeningQuery.docs.isNotEmpty) {
+          final screeningData = screeningQuery.docs.first.data();
+          studentData['screeningStatus'] = screeningData['status'] ?? 'pending';
+          studentData['screeningScore'] = screeningData['totalScore'] ?? 0;
+          studentData['lastScreeningDate'] = screeningData['timestamp'];
+        } else {
+          studentData['screeningStatus'] = 'not_started';
+          studentData['screeningScore'] = 0;
+          studentData['lastScreeningDate'] = null;
+        }
+
         students.add(studentData);
       }
 
@@ -687,15 +707,16 @@ class _StudentListPageState extends State<StudentListPage>
                             ),
                           ),
 
-                          // Conversation Stats
+                          // Stats Column
                           SizedBox(
-                            width: 80,
+                            width: 100,
                             child: Column(
                               children: [
+                                // Conversation Stats
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 6,
+                                    horizontal: 6,
+                                    vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
@@ -709,23 +730,23 @@ class _StudentListPageState extends State<StudentListPage>
                                               Colors.grey.shade400,
                                             ],
                                     ),
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(15),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
                                         Icons.chat_bubble_outline,
-                                        size: 14,
+                                        size: 12,
                                         color: conversationCount > 0
                                             ? Colors.white
                                             : Colors.grey[600],
                                       ),
-                                      const SizedBox(width: 4),
+                                      const SizedBox(width: 2),
                                       Text(
                                         '$conversationCount',
                                         style: TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 10,
                                           fontWeight: FontWeight.bold,
                                           color: conversationCount > 0
                                               ? Colors.white
@@ -735,7 +756,10 @@ class _StudentListPageState extends State<StudentListPage>
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 6),
+                                // Screening Status
+                                _buildScreeningStatusBadge(student),
+                                const SizedBox(height: 6),
                                 Icon(
                                   Icons.arrow_forward_ios,
                                   color: Colors.grey[400],
@@ -754,6 +778,79 @@ class _StudentListPageState extends State<StudentListPage>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildScreeningStatusBadge(Map<String, dynamic> student) {
+    final status = student['screeningStatus'] ?? 'not_started';
+    final score = student['screeningScore'] ?? 0;
+
+    IconData icon;
+    List<Color> colors;
+    String text;
+
+    switch (status) {
+      case 'completed':
+        if (score >= 20) {
+          // High risk
+          icon = Icons.warning;
+          colors = [Colors.red.shade400, Colors.red.shade600];
+          text = 'High Risk';
+        } else if (score >= 10) {
+          // Moderate risk
+          icon = Icons.warning_amber;
+          colors = [Colors.orange.shade400, Colors.orange.shade600];
+          text = 'Moderate';
+        } else {
+          // Low risk
+          icon = Icons.check_circle;
+          colors = [Colors.green.shade400, Colors.green.shade600];
+          text = 'Low Risk';
+        }
+        break;
+      case 'in_progress':
+        icon = Icons.hourglass_top;
+        colors = [Colors.blue.shade400, Colors.blue.shade600];
+        text = 'In Progress';
+        break;
+      case 'pending':
+        icon = Icons.schedule;
+        colors = [Colors.grey.shade400, Colors.grey.shade600];
+        text = 'Pending';
+        break;
+      default:
+        // not_started
+        icon = Icons.assignment;
+        colors = [Colors.grey.shade300, Colors.grey.shade400];
+        text = 'Not Started';
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: colors),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 12,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 2),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -6,6 +6,7 @@ import 'booking.dart';
 import 'resource_hub.dart';
 import 'profile_page.dart';
 import 'notifications_page.dart';
+import 'screening_tools.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -470,6 +471,16 @@ class _StudentHomePageState extends State<StudentHomePage>
                       color: Colors.purple,
                       onTap: () =>
                           _navigateTo(context, const ResourceHubPage()),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    _buildFeatureCard(
+                      title: 'Mental Health Screening',
+                      subtitle: 'Take standardized assessments for depression, anxiety, and general health',
+                      icon: Icons.assessment_outlined,
+                      color: Colors.indigo,
+                      onTap: () => _navigateTo(context, const ScreeningToolsPage()),
                     ),
 
                     const SizedBox(height: 16),

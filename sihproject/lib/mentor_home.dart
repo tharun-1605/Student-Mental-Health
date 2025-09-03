@@ -5,6 +5,7 @@ import 'student_list.dart';
 import 'mentor_message_page.dart';
 import 'profile_page.dart';
 import 'mentor_booking_management.dart';
+import 'mentor_screening_monitor.dart';
 
 class MentorHomePage extends StatefulWidget {
   const MentorHomePage({super.key});
@@ -590,6 +591,26 @@ class _MentorHomePageState extends State<MentorHomePage>
           context,
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => const MentorBookingManagementPage(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              );
+            },
+          ),
+        ),
+      },
+      {
+        'icon': Icons.assessment,
+        'label': 'Screening Monitor',
+        'color': Colors.indigo[400],
+        'onPressed': () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const MentorScreeningMonitorPage(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return SlideTransition(
                 position: Tween<Offset>(

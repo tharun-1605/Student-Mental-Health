@@ -30,6 +30,14 @@
       "fields": [
         { "fieldPath": "college", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "screenings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "studentId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
