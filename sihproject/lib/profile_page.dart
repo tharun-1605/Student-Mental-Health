@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'main.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -205,7 +206,11 @@ class _ProfilePageState extends State<ProfilePage>
 
   void _logout() async {
     await FirebaseAuth.instance.signOut();
-    // No need for manual navigation - AuthWrapper will handle it automatically
+    // Clear navigation stack and go to welcome page
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const AuthWrapper()),
+      (route) => false,
+    );
   }
 
   Widget _buildProfileHeader() {

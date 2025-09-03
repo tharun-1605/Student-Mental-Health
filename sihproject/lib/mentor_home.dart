@@ -211,9 +211,9 @@ class _MentorHomePageState extends State<MentorHomePage>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFFFF9800),
-            Color(0xFFFF5722),
-            Color(0xFFE65100),
+            Color(0xFFF8FFFE),
+            Color(0xFFE8F5F3),
+            Color(0xFFD6F0EB),
           ],
         ),
       ),
@@ -227,30 +227,30 @@ class _MentorHomePageState extends State<MentorHomePage>
               curve: Curves.elasticOut,
               builder: (context, double value, child) {
                 return Transform.scale(
-                  scale: value,
+                  scale: value.clamp(0.0, 1.0),
                   child: Container(
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.teal[100]?.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(60),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.teal[200]?.withOpacity(0.5) ?? Colors.teal,
                         width: 3,
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.supervisor_account,
                       size: 60,
-                      color: Colors.white,
+                      color: Colors.teal[600],
                     ),
                   ),
                 );
               },
             ),
             const SizedBox(height: 32),
-            const CircularProgressIndicator(
-              color: Colors.white,
+            CircularProgressIndicator(
+              color: Colors.teal[400],
               strokeWidth: 3,
             ),
             const SizedBox(height: 24),
@@ -260,13 +260,13 @@ class _MentorHomePageState extends State<MentorHomePage>
               curve: Curves.easeOut,
               builder: (context, double value, child) {
                 return Opacity(
-                  opacity: value,
+                  opacity: value.clamp(0.0, 1.0),
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         'Welcome Back, Mentor!',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.teal[700],
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -275,7 +275,7 @@ class _MentorHomePageState extends State<MentorHomePage>
                       Text(
                         'Loading your dashboard...',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.teal[600]?.withOpacity(0.8),
                           fontSize: 16,
                         ),
                       ),
@@ -304,15 +304,22 @@ class _MentorHomePageState extends State<MentorHomePage>
               margin: const EdgeInsets.all(20),
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white.withOpacity(0.9),
+                    Colors.teal[50]?.withOpacity(0.8) ?? Colors.teal.withOpacity(0.1),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.teal[100]?.withOpacity(0.5) ?? Colors.teal.withOpacity(0.2),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.teal.withOpacity(0.08),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -327,15 +334,18 @@ class _MentorHomePageState extends State<MentorHomePage>
                       width: 70,
                       height: 70,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Colors.white, Color(0xFFF5F5F5)],
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.teal[300] ?? Colors.teal,
+                            Colors.teal[400] ?? Colors.teal,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(35),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.teal.withOpacity(0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -344,10 +354,10 @@ class _MentorHomePageState extends State<MentorHomePage>
                       child: Center(
                         child: Text(
                           _mentorName?.substring(0, 1).toUpperCase() ?? 'M',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: Colors.orange[700],
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -364,15 +374,15 @@ class _MentorHomePageState extends State<MentorHomePage>
                         Text(
                           'Welcome back,',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.teal[600]?.withOpacity(0.8),
                             fontSize: 16,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           _mentorName ?? 'Mentor',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Colors.teal[700],
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
@@ -382,13 +392,13 @@ class _MentorHomePageState extends State<MentorHomePage>
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.teal[100]?.withOpacity(0.6),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               _mentorCollege!,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.teal[700],
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -409,7 +419,7 @@ class _MentorHomePageState extends State<MentorHomePage>
                           width: 12,
                           height: 12,
                           decoration: BoxDecoration(
-                            color: Colors.green,
+                            color: Colors.green[400],
                             borderRadius: BorderRadius.circular(6),
                             boxShadow: [
                               BoxShadow(
@@ -437,7 +447,7 @@ class _MentorHomePageState extends State<MentorHomePage>
       animation: _statsAnimation,
       builder: (context, child) {
         return Transform.scale(
-          scale: _statsAnimation.value,
+          scale: _statsAnimation.value.clamp(0.0, 1.0),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -447,7 +457,7 @@ class _MentorHomePageState extends State<MentorHomePage>
                     title: 'Students',
                     value: _studentCount.toString(),
                     icon: Icons.school,
-                    color: Colors.blue,
+                    color: Colors.blue[400] ?? Colors.blue,
                     delay: 0,
                   ),
                 ),
@@ -457,7 +467,7 @@ class _MentorHomePageState extends State<MentorHomePage>
                     title: 'Active Chats',
                     value: _activeConversations.toString(),
                     icon: Icons.chat_bubble,
-                    color: Colors.green,
+                    color: Colors.green[400] ?? Colors.green,
                     delay: 100,
                   ),
                 ),
@@ -467,7 +477,7 @@ class _MentorHomePageState extends State<MentorHomePage>
                     title: 'Bookings',
                     value: _pendingBookings.toString(),
                     icon: Icons.calendar_today,
-                    color: Colors.purple,
+                    color: Colors.purple[400] ?? Colors.purple,
                     delay: 200,
                   ),
                 ),
@@ -494,7 +504,7 @@ class _MentorHomePageState extends State<MentorHomePage>
         return Transform.translate(
           offset: Offset(0, 20 * (1 - animValue)),
           child: Opacity(
-            opacity: animValue,
+            opacity: animValue.clamp(0.0, 1.0),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -502,11 +512,15 @@ class _MentorHomePageState extends State<MentorHomePage>
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    color: color.withOpacity(0.15),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
                   ),
                 ],
+                border: Border.all(
+                  color: color.withOpacity(0.1),
+                  width: 1,
+                ),
               ),
               child: Column(
                 children: [
@@ -551,7 +565,7 @@ class _MentorHomePageState extends State<MentorHomePage>
       {
         'icon': Icons.people,
         'label': 'View Students',
-        'color': Colors.blue,
+        'color': Colors.blue[400],
         'onPressed': () => Navigator.push(
           context,
           PageRouteBuilder(
@@ -571,7 +585,7 @@ class _MentorHomePageState extends State<MentorHomePage>
       {
         'icon': Icons.calendar_today,
         'label': 'Manage Bookings',
-        'color': Colors.green,
+        'color': Colors.green[400],
         'onPressed': () => Navigator.push(
           context,
           PageRouteBuilder(
@@ -591,7 +605,7 @@ class _MentorHomePageState extends State<MentorHomePage>
       {
         'icon': Icons.campaign,
         'label': 'Send Message',
-        'color': Colors.purple,
+        'color': Colors.purple[400],
         'onPressed': () => Navigator.push(
           context,
           PageRouteBuilder(
@@ -611,19 +625,22 @@ class _MentorHomePageState extends State<MentorHomePage>
       {
         'icon': Icons.library_books,
         'label': 'Resources',
-        'color': Colors.teal,
+        'color': Colors.teal[400],
         'onPressed': () {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Row(
                 children: [
                   Icon(Icons.info, color: Colors.white),
-                  SizedBox(width: 12),
-                  Text('Resources feature coming soon!'),
+                  const SizedBox(width: 12),
+                  const Text('Resources feature coming soon!'),
                 ],
               ),
-              backgroundColor: Colors.teal,
+              backgroundColor: Colors.teal[400],
               behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         },
@@ -639,11 +656,11 @@ class _MentorHomePageState extends State<MentorHomePage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Opacity(
-                opacity: _cardAnimation.value,
-                child: const Text(
+                opacity: _cardAnimation.value.clamp(0.0, 1.0),
+                child: Text(
                   'Quick Actions',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.teal[700],
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -668,7 +685,7 @@ class _MentorHomePageState extends State<MentorHomePage>
                     curve: Curves.easeOutBack,
                     builder: (context, double value, child) {
                       return Transform.scale(
-                        scale: value,
+                        scale: value.clamp(0.0, 1.0),
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
@@ -680,11 +697,15 @@ class _MentorHomePageState extends State<MentorHomePage>
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: (action['color'] as Color).withOpacity(0.2),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
+                                    color: (action['color'] as Color).withOpacity(0.15),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 6),
                                   ),
                                 ],
+                                border: Border.all(
+                                  color: (action['color'] as Color).withOpacity(0.1),
+                                  width: 1,
+                                ),
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -741,22 +762,38 @@ class _MentorHomePageState extends State<MentorHomePage>
             margin: const EdgeInsets.all(20),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withOpacity(0.8),
+                  Colors.teal[50]?.withOpacity(0.6) ?? Colors.teal.withOpacity(0.1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
+              border: Border.all(
+                color: Colors.teal[100]?.withOpacity(0.5) ?? Colors.teal.withOpacity(0.2),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.teal.withOpacity(0.08),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
             child: Column(
               children: [
                 Icon(
                   Icons.format_quote,
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.teal[400],
                   size: 32,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   '"A mentor is someone who allows you to see the hope inside yourself."',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.teal[700],
                     fontSize: 16,
                     fontStyle: FontStyle.italic,
                     height: 1.4,
@@ -767,7 +804,7 @@ class _MentorHomePageState extends State<MentorHomePage>
                 Text(
                   '- Oprah Winfrey',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.teal[600]?.withOpacity(0.8),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -795,18 +832,18 @@ class _MentorHomePageState extends State<MentorHomePage>
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Mentor Dashboard',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Colors.teal[700],
           ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_outline, color: Colors.white),
+            icon: Icon(Icons.person_outline, color: Colors.teal[600]),
             onPressed: () {
               Navigator.push(
                 context,
@@ -826,7 +863,7 @@ class _MentorHomePageState extends State<MentorHomePage>
             },
           ),
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
+            icon: Icon(Icons.refresh, color: Colors.teal[600]),
             onPressed: _loadMentorData,
           ),
         ],
@@ -844,9 +881,9 @@ class _MentorHomePageState extends State<MentorHomePage>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFFFF9800),
-                      Color(0xFFFF5722),
-                      Color(0xFFE65100),
+                      Color(0xFFF8FFFE), // Very light mint
+                      Color(0xFFEBF8F5), // Light mint green
+                      Color(0xFFE0F4F0), // Soft seafoam
                     ],
                   ),
                 ),
@@ -860,16 +897,16 @@ class _MentorHomePageState extends State<MentorHomePage>
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.error_outline,
-                                      color: Colors.white,
+                                      color: Colors.teal[400],
                                       size: 64,
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
                                       _errorMessage!,
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: Colors.teal[700],
                                         fontSize: 16,
                                       ),
                                       textAlign: TextAlign.center,
@@ -878,8 +915,11 @@ class _MentorHomePageState extends State<MentorHomePage>
                                     ElevatedButton(
                                       onPressed: _loadMentorData,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.white,
-                                        foregroundColor: Colors.orange,
+                                        backgroundColor: Colors.teal[400],
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
                                       ),
                                       child: const Text('Try Again'),
                                     ),

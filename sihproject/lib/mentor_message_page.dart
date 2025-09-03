@@ -249,15 +249,22 @@ class _MentorMessagePageState extends State<MentorMessagePage>
               padding: const EdgeInsets.all(24),
               margin: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFF9800), Color(0xFFFF5722)],
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white.withOpacity(0.9),
+                    Colors.teal[50]?.withOpacity(0.8) ?? Colors.teal.withOpacity(0.1),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.teal[100]?.withOpacity(0.5) ?? Colors.teal.withOpacity(0.2),
+                  width: 1,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.orange.withOpacity(0.3),
+                    color: Colors.teal.withOpacity(0.15),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
@@ -272,12 +279,12 @@ class _MentorMessagePageState extends State<MentorMessagePage>
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.teal[100]?.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.campaign,
-                          color: Colors.white,
+                          color: Colors.teal[600],
                           size: 28,
                         ),
                       ),
@@ -286,10 +293,10 @@ class _MentorMessagePageState extends State<MentorMessagePage>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Broadcast Message',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.teal[700],
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -297,7 +304,7 @@ class _MentorMessagePageState extends State<MentorMessagePage>
                             Text(
                               'Send to all students',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.teal[600]?.withOpacity(0.8),
                                 fontSize: 14,
                               ),
                             ),
@@ -311,22 +318,22 @@ class _MentorMessagePageState extends State<MentorMessagePage>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.teal[100]?.withOpacity(0.6),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.school,
-                            color: Colors.white,
+                            color: Colors.teal[700],
                             size: 16,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             _collegeName,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Colors.teal[700],
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -358,9 +365,13 @@ class _MentorMessagePageState extends State<MentorMessagePage>
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.teal[100]?.withOpacity(0.5) ?? Colors.teal.withOpacity(0.2),
+                width: 1,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.teal.withOpacity(0.08),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -375,8 +386,8 @@ class _MentorMessagePageState extends State<MentorMessagePage>
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFF9800), Color(0xFFFF5722)],
+                        gradient: LinearGradient(
+                          colors: [Colors.teal[400]!, Colors.teal[600]!],
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -425,7 +436,7 @@ class _MentorMessagePageState extends State<MentorMessagePage>
                     color: Colors.grey[50],
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: _focusNode.hasFocus ? Colors.orange : Colors.grey[300]!,
+                      color: _focusNode.hasFocus ? Colors.teal[400]! : Colors.grey[300]!,
                       width: 2,
                     ),
                   ),
@@ -466,7 +477,7 @@ class _MentorMessagePageState extends State<MentorMessagePage>
                       decoration: BoxDecoration(
                         color: _characterCount > _maxLength * 0.8 
                             ? Colors.red[100] 
-                            : Colors.grey[200],
+                            : Colors.teal[50],
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -476,7 +487,7 @@ class _MentorMessagePageState extends State<MentorMessagePage>
                           fontWeight: FontWeight.w500,
                           color: _characterCount > _maxLength * 0.8 
                               ? Colors.red[700] 
-                              : Colors.grey[600],
+                              : Colors.teal[600],
                         ),
                       ),
                     ),
@@ -543,7 +554,7 @@ class _MentorMessagePageState extends State<MentorMessagePage>
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _successAnimation.value > 0
                                   ? Colors.green
-                                  : Colors.orange,
+                                  : Colors.teal[500],
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -576,23 +587,23 @@ class _MentorMessagePageState extends State<MentorMessagePage>
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.blue[50],
+              color: Colors.teal[50],
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue[200]!),
+              border: Border.all(color: Colors.teal[200]!),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.lightbulb_outline, color: Colors.blue[600]),
+                    Icon(Icons.lightbulb_outline, color: Colors.teal[600]),
                     const SizedBox(width: 8),
                     Text(
                       'Message Guidelines',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue[700],
+                        color: Colors.teal[700],
                       ),
                     ),
                   ],
@@ -617,7 +628,7 @@ class _MentorMessagePageState extends State<MentorMessagePage>
         tip,
         style: TextStyle(
           fontSize: 14,
-          color: Colors.blue[600],
+          color: Colors.teal[600],
         ),
       ),
     );
@@ -639,25 +650,18 @@ class _MentorMessagePageState extends State<MentorMessagePage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Broadcast Message',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Colors.teal[700],
           ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFFF9800), Color(0xFFFF5722)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
+        iconTheme: IconThemeData(color: Colors.teal[700]),
       ),
       body: AnimatedBuilder(
         animation: _fadeAnimation,
@@ -666,27 +670,42 @@ class _MentorMessagePageState extends State<MentorMessagePage>
             opacity: _fadeAnimation.value,
             child: SlideTransition(
               position: _slideAnimation,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Header Section
-                    _buildHeader(),
-                    
-                    const SizedBox(height: 10),
-                    
-                    // Message Input Section
-                    _buildMessageInput(),
-                    
-                    const SizedBox(height: 20),
-                    
-                    // Send Button
-                    _buildSendButton(),
-                    
-                    // Quick Tips
-                    _buildQuickTips(),
-                    
-                    const SizedBox(height: 20),
-                  ],
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFF8FFFE), // Very light mint (almost white)
+                      Color(0xFFEBF8F5), // Light mint green
+                      Color(0xFFE0F4F0), // Soft seafoam
+                    ],
+                  ),
+                ),
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // Header Section
+                        _buildHeader(),
+                        
+                        const SizedBox(height: 10),
+                        
+                        // Message Input Section
+                        _buildMessageInput(),
+                        
+                        const SizedBox(height: 20),
+                        
+                        // Send Button
+                        _buildSendButton(),
+                        
+                        // Quick Tips
+                        _buildQuickTips(),
+                        
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

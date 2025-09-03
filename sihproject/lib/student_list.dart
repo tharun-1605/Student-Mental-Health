@@ -227,7 +227,11 @@ class _StudentListPageState extends State<StudentListPage>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFFF9800), Color(0xFFFF5722), Color(0xFFE65100)],
+          colors: [
+            Color(0xFFF8FFFE), // Very light mint (almost white)
+            Color(0xFFEBF8F5), // Light mint green
+            Color(0xFFE0F4F0), // Soft seafoam
+          ],
         ),
       ),
       child: Center(
@@ -240,30 +244,30 @@ class _StudentListPageState extends State<StudentListPage>
               curve: Curves.elasticOut,
               builder: (context, double value, child) {
                 return Transform.scale(
-                  scale: value,
+                  scale: value.clamp(0.0, 1.0),
                   child: Container(
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.teal[100]?.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(50),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.teal[200]?.withOpacity(0.5) ?? Colors.teal,
                         width: 2,
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.supervisor_account,
                       size: 50,
-                      color: Colors.white,
+                      color: Colors.teal[600],
                     ),
                   ),
                 );
               },
             ),
             const SizedBox(height: 32),
-            const CircularProgressIndicator(
-              color: Colors.white,
+            CircularProgressIndicator(
+              color: Colors.teal[400],
               strokeWidth: 3,
             ),
             const SizedBox(height: 24),
@@ -273,13 +277,13 @@ class _StudentListPageState extends State<StudentListPage>
               curve: Curves.easeOut,
               builder: (context, double value, child) {
                 return Opacity(
-                  opacity: value,
+                  opacity: value.clamp(0.0, 1.0),
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         'Loading Your Students...',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.teal[700],
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
@@ -288,7 +292,7 @@ class _StudentListPageState extends State<StudentListPage>
                       Text(
                         'Connecting you with your mentees',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.teal[600]?.withOpacity(0.8),
                           fontSize: 14,
                         ),
                       ),
@@ -313,15 +317,22 @@ class _StudentListPageState extends State<StudentListPage>
             margin: const EdgeInsets.all(20),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withOpacity(0.9),
+                  Colors.teal[50]?.withOpacity(0.8) ?? Colors.teal.withOpacity(0.1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.teal[100]?.withOpacity(0.5) ?? Colors.teal.withOpacity(0.2),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.teal.withOpacity(0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -336,12 +347,12 @@ class _StudentListPageState extends State<StudentListPage>
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.teal[100]?.withOpacity(0.6),
                         borderRadius: BorderRadius.circular(25),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.school,
-                        color: Colors.white,
+                        color: Colors.teal[600],
                         size: 28,
                       ),
                     ),
@@ -352,8 +363,8 @@ class _StudentListPageState extends State<StudentListPage>
                         children: [
                           Text(
                             _mentorCollege ?? 'Your College',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Colors.teal[700],
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
@@ -361,7 +372,7 @@ class _StudentListPageState extends State<StudentListPage>
                           Text(
                             '${_filteredStudents.length} student${_filteredStudents.length == 1 ? '' : 's'} found',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.teal[600]?.withOpacity(0.8),
                               fontSize: 14,
                             ),
                           ),
@@ -375,9 +386,9 @@ class _StudentListPageState extends State<StudentListPage>
                           angle: _refreshAnimation.value * 2 * 3.14159,
                           child: IconButton(
                             onPressed: _refreshData,
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.refresh,
-                              color: Colors.white,
+                              color: Colors.teal[600],
                               size: 24,
                             ),
                           ),
@@ -390,7 +401,7 @@ class _StudentListPageState extends State<StudentListPage>
                 Text(
                   'Connect with your students and track their mental health journey.',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.teal[600],
                     fontSize: 16,
                     height: 1.4,
                   ),
@@ -419,16 +430,24 @@ class _StudentListPageState extends State<StudentListPage>
             child: TextField(
               controller: _searchController,
               onChanged: _filterStudents,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.teal[700]),
               decoration: InputDecoration(
                 hintText: 'Search students by name, email, or department...',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                prefixIcon: const Icon(Icons.search, color: Colors.white),
+                hintStyle: TextStyle(color: Colors.teal[500]?.withOpacity(0.7)),
+                prefixIcon: Icon(Icons.search, color: Colors.teal[600]),
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.15),
+                fillColor: Colors.white.withOpacity(0.9),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(color: Colors.teal[200]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(color: Colors.teal[400]!, width: 2),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(color: Colors.teal[200]!),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -463,9 +482,9 @@ class _StudentListPageState extends State<StudentListPage>
         return Transform.translate(
           offset: Offset(50 * (1 - value), 0),
           child: Transform.scale(
-            scale: value,
+            scale: value.clamp(0.0, 1.0),
             child: Opacity(
-              opacity: value,
+              opacity: value.clamp(0.0, 1.0),
               child: Container(
                 margin: const EdgeInsets.only(bottom: 16),
                 child: Material(
@@ -510,9 +529,13 @@ class _StudentListPageState extends State<StudentListPage>
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.95),
                         borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: colorPair[0].withOpacity(0.1),
+                          width: 1,
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: colorPair[0].withOpacity(0.15),
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                           ),
@@ -665,58 +688,61 @@ class _StudentListPageState extends State<StudentListPage>
                           ),
 
                           // Conversation Stats
-                          Column(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: conversationCount > 0
-                                        ? [
-                                            Colors.green.shade400,
-                                            Colors.green.shade600,
-                                          ]
-                                        : [
-                                            Colors.grey.shade300,
-                                            Colors.grey.shade400,
-                                          ],
+                          SizedBox(
+                            width: 80,
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 6,
                                   ),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.chat_bubble_outline,
-                                      size: 16,
-                                      color: conversationCount > 0
-                                          ? Colors.white
-                                          : Colors.grey[600],
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: conversationCount > 0
+                                          ? [
+                                              Colors.green.shade400,
+                                              Colors.green.shade600,
+                                            ]
+                                          : [
+                                              Colors.grey.shade300,
+                                              Colors.grey.shade400,
+                                            ],
                                     ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      '$conversationCount',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.chat_bubble_outline,
+                                        size: 14,
                                         color: conversationCount > 0
                                             ? Colors.white
                                             : Colors.grey[600],
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '$conversationCount',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: conversationCount > 0
+                                              ? Colors.white
+                                              : Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                color: Colors.grey[400],
-                                size: 16,
-                              ),
-                            ],
+                                const SizedBox(height: 8),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: Colors.grey[400],
+                                  size: 16,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -739,31 +765,35 @@ class _StudentListPageState extends State<StudentListPage>
         curve: Curves.easeOut,
         builder: (context, double value, child) {
           return Opacity(
-            opacity: value,
+            opacity: value.clamp(0.0, 1.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Transform.scale(
-                  scale: value,
+                  scale: value.clamp(0.0, 1.0),
                   child: Container(
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.teal[100]?.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(60),
+                      border: Border.all(
+                        color: Colors.teal[200]?.withOpacity(0.5) ?? Colors.teal,
+                        width: 2,
+                      ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.school_outlined,
-                      color: Colors.white,
+                      color: Colors.teal[400],
                       size: 64,
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'No Students Found',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.teal[700],
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -774,7 +804,7 @@ class _StudentListPageState extends State<StudentListPage>
                       ? 'No students match your search criteria'
                       : 'No students from ${_mentorCollege ?? 'your college'} have registered yet.',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.teal[600]?.withOpacity(0.8),
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.center,
@@ -792,8 +822,8 @@ class _StudentListPageState extends State<StudentListPage>
                   icon: Icon(_isSearching ? Icons.clear : Icons.refresh),
                   label: Text(_isSearching ? 'Clear Search' : 'Refresh'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.orange,
+                    backgroundColor: Colors.teal[400],
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
                       vertical: 12,
@@ -818,6 +848,7 @@ class _StudentListPageState extends State<StudentListPage>
     _headerController.dispose();
     _searchAnimationController.dispose();
     _refreshController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -826,17 +857,21 @@ class _StudentListPageState extends State<StudentListPage>
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'My Students',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+            fontWeight: FontWeight.bold, 
+            color: Colors.teal[700],
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: Colors.teal[700]),
         actions: [
           IconButton(
             icon: Icon(
               _isSearching ? Icons.close : Icons.search,
-              color: Colors.white,
+              color: Colors.teal[600],
             ),
             onPressed: _toggleSearch,
           ),
@@ -855,9 +890,9 @@ class _StudentListPageState extends State<StudentListPage>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFFFF9800),
-                      Color(0xFFFF5722),
-                      Color(0xFFE65100),
+                      Color(0xFFF8FFFE), // Very light mint (almost white)
+                      Color(0xFFEBF8F5), // Light mint green
+                      Color(0xFFE0F4F0), // Soft seafoam
                     ],
                   ),
                 ),
@@ -871,16 +906,16 @@ class _StudentListPageState extends State<StudentListPage>
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.error_outline,
-                                  color: Colors.white,
+                                  color: Colors.teal[400],
                                   size: 64,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   _errorMessage!,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: Colors.teal[700],
                                     fontSize: 16,
                                   ),
                                   textAlign: TextAlign.center,
@@ -889,8 +924,11 @@ class _StudentListPageState extends State<StudentListPage>
                                 ElevatedButton(
                                   onPressed: _refreshData,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: Colors.orange,
+                                    backgroundColor: Colors.teal[400],
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                   ),
                                   child: const Text('Try Again'),
                                 ),

@@ -1,48 +1,15 @@
-# TODO: Implement Persistent Login
+# TODO List for Confidential Booking Feature
 
-## Tasks
-- [x] Modify main.dart to check authentication state on app start
-- [x] Add logic to determine user type (student/mentor) if logged in
-- [x] Navigate to appropriate home page if logged in, else show WelcomePage
-- [x] Test the implementation by logging in and restarting the app
-- [x] Ensure logout functionality works correctly
+## Completed Tasks
+- [x] Analyze the booking system to understand mentor selection logic
+- [x] Review student and mentor registration to confirm college field storage
+- [x] Modify _fetchCounsellors method in BookingPage to filter mentors by student's college
+- [x] Update booking.dart to implement college-based mentor filtering
 
-## Current Status
-- Understanding: Firebase Auth persists login by default, but main.dart always shows WelcomePage
-- Plan: Use FutureBuilder in main.dart to check currentUser and user type from Firestore
-- Completed: Added AuthWrapper widget that checks auth state on app start and navigates to appropriate page
+## Summary
+The confidential booking feature has been successfully implemented. Now, when students access the booking page, only mentors from their same college will be listed in the mentor selection dropdown. This ensures privacy and relevance by limiting mentor options to those within the same educational institution.
 
----
-
-# TODO: Add Profile Page to Mentor Home
-
-## Tasks
-- [x] Add profile icon to mentor_home.dart appBar
-- [x] Modify ProfilePage to handle both students and mentors
-- [x] Test profile page navigation from mentor home
-
-## Current Status
-- Understanding: Mentor home only had refresh icon, needed profile access like student home
-- Plan: Add profile icon to appBar and make ProfilePage generic for both user types
-- Completed: Added profile icon and modified ProfilePage to check both 'students' and 'mentors' collections
-
----
-
-# TODO: Implement FCM Push Notifications
-
-## Tasks
-- [x] Create FCM service class with initialization and token management
-- [x] Add login notification trigger in login.dart after successful authentication
-- [x] Add booking request notification trigger in booking.dart after successful booking
-- [x] Update booking.dart to use centralized FCM service
-- [x] Test notification triggers for login and booking events
-
-## Current Status
-- Understanding: Need to implement push notifications for key events (login, booking requests)
-- Plan: Create FCM service, integrate with login and booking flows, trigger Cloud Functions
-- Completed:
-  - Created FCMService class with initialization, token storage, and notification methods
-  - Added login notification trigger in login.dart after successful login
-  - Added booking request notification trigger in booking.dart after successful booking
-  - Updated booking.dart to use centralized FCM service instead of direct Firebase Messaging calls
-  - All notification triggers now create events in Firestore collections that will trigger Cloud Functions
+## Next Steps
+- Test the booking functionality to verify mentors are filtered correctly
+- Consider adding error handling for cases where no mentors are available from the student's college
+- Optionally, add a message to inform students if no mentors are available from their college

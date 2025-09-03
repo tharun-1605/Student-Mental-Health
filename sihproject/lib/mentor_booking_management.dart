@@ -237,8 +237,8 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Colors.blue, Colors.blueAccent],
+                      gradient: LinearGradient(
+                        colors: [Colors.teal[400]!, Colors.teal[600]!],
                       ),
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -301,10 +301,10 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: Colors.blue[50],
+              color: Colors.teal[50],
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: Colors.blue[600], size: 16),
+            child: Icon(icon, color: Colors.teal[600], size: 16),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -325,9 +325,9 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                         onTap: () => _launchURL(value),
                         child: Text(
                           value,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: Colors.blue,
+                            color: Colors.teal[600],
                             decoration: TextDecoration.underline,
                           ),
                         ),
@@ -376,8 +376,8 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Colors.orange, Colors.deepOrange],
+                      gradient: LinearGradient(
+                        colors: [Colors.teal[400]!, Colors.teal[600]!],
                       ),
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -406,9 +406,9 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: Colors.teal[50],
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue[200]!),
+                  border: Border.all(color: Colors.teal[200]!),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,7 +446,7 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.blue, width: 2),
+                    borderSide: BorderSide(color: Colors.teal[400]!, width: 2),
                   ),
                 ),
               ),
@@ -567,20 +567,27 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
         return Transform.translate(
           offset: Offset(0, 30 * (1 - value)),
           child: Opacity(
-            opacity: value,
+            opacity: value.clamp(0.0, 1.0),
             child: Container(
               margin: const EdgeInsets.all(20),
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white.withOpacity(0.9),
+                    Colors.teal[50]?.withOpacity(0.8) ?? Colors.teal.withOpacity(0.1),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.teal[100]?.withOpacity(0.5) ?? Colors.teal.withOpacity(0.2),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.teal.withOpacity(0.08),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -595,24 +602,24 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.teal[100]?.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.calendar_today,
-                          color: Colors.white,
+                          color: Colors.teal[600],
                           size: 28,
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Booking Management',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.teal[700],
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -620,7 +627,7 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                             Text(
                               'Manage student appointments',
                               style: TextStyle(
-                                color: Colors.white70,
+                                color: Colors.teal[600]?.withOpacity(0.8),
                                 fontSize: 14,
                               ),
                             ),
@@ -632,18 +639,18 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      _buildStatBadge('Total', _bookings.length.toString(), Colors.white),
+                      _buildStatBadge('Total', _bookings.length.toString(), Colors.teal[400]!),
                       const SizedBox(width: 12),
                       _buildStatBadge(
                         'Pending', 
                         _bookings.where((b) => b['status'] == 'pending').length.toString(),
-                        Colors.orange[200]!
+                        Colors.orange[400]!
                       ),
                       const SizedBox(width: 12),
                       _buildStatBadge(
                         'Approved', 
                         _bookings.where((b) => b['status'] == 'approved').length.toString(),
-                        Colors.green[200]!
+                        Colors.green[400]!
                       ),
                     ],
                   ),
@@ -660,7 +667,7 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
@@ -670,7 +677,7 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
           Text(
             count,
             style: TextStyle(
-              color: Colors.white,
+              color: color,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -679,7 +686,7 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
+              color: color.withOpacity(0.8),
               fontSize: 12,
             ),
           ),
@@ -701,10 +708,10 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
               margin: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  const Text(
+                  Text(
                     'Filter: ',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.teal[700],
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -742,14 +749,14 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
             _selectedFilter = value;
           });
         },
-        backgroundColor: Colors.white.withOpacity(0.2),
-        selectedColor: Colors.white,
+        backgroundColor: Colors.white.withOpacity(0.8),
+        selectedColor: Colors.teal[100],
         labelStyle: TextStyle(
-          color: isSelected ? Colors.orange[700] : Colors.white,
+          color: isSelected ? Colors.teal[700] : Colors.teal[600],
           fontWeight: FontWeight.w500,
         ),
         side: BorderSide(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.teal[200] ?? Colors.teal,
         ),
       ),
     );
@@ -771,9 +778,9 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
         return Transform.translate(
           offset: Offset(0, 50 * (1 - value)),
           child: Transform.scale(
-            scale: value,
+            scale: value.clamp(0.0, 1.0),
             child: Opacity(
-              opacity: value,
+              opacity: value.clamp(0.0, 1.0),
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Material(
@@ -786,9 +793,13 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: _getStatusColor(booking['status'] ?? 'pending').withOpacity(0.1),
+                          width: 1,
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: _getStatusColor(booking['status'] ?? 'pending').withOpacity(0.2),
+                            color: _getStatusColor(booking['status'] ?? 'pending').withOpacity(0.15),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -804,7 +815,7 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                                 height: 50,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [Colors.blue[400]!, Colors.blue[600]!],
+                                    colors: [Colors.teal[400]!, Colors.teal[600]!],
                                   ),
                                   borderRadius: BorderRadius.circular(25),
                                 ),
@@ -843,33 +854,38 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                                   ],
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: _getStatusColor(booking['status'] ?? 'pending').withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(
-                                    color: _getStatusColor(booking['status'] ?? 'pending'),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      _getStatusIcon(booking['status'] ?? 'pending'),
-                                      size: 16,
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: _getStatusColor(booking['status'] ?? 'pending').withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(15),
+                                    border: Border.all(
                                       color: _getStatusColor(booking['status'] ?? 'pending'),
                                     ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      (booking['status'] ?? 'pending').toUpperCase(),
-                                      style: TextStyle(
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        _getStatusIcon(booking['status'] ?? 'pending'),
+                                        size: 16,
                                         color: _getStatusColor(booking['status'] ?? 'pending'),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 4),
+                                      Flexible(
+                                        child: Text(
+                                          (booking['status'] ?? 'pending').toUpperCase(),
+                                          style: TextStyle(
+                                            color: _getStatusColor(booking['status'] ?? 'pending'),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -972,7 +988,7 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                                   icon: const Icon(Icons.manage_accounts, size: 16),
                                   label: const Text('Manage'),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange,
+                                    backgroundColor: Colors.teal[400],
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -1002,42 +1018,46 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
         curve: Curves.easeOut,
         builder: (context, double value, child) {
           return Opacity(
-            opacity: value,
+            opacity: value.clamp(0.0, 1.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Transform.scale(
-                  scale: value,
+                  scale: value.clamp(0.0, 1.0),
                   child: Container(
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.teal[100]?.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(60),
+                      border: Border.all(
+                        color: Colors.teal[200]?.withOpacity(0.5) ?? Colors.teal,
+                        width: 2,
+                      ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.calendar_today,
-                      color: Colors.white,
+                      color: Colors.teal[400],
                       size: 64,
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'No Bookings Found',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.teal[700],
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  _selectedFilter == 'all' 
+                  _selectedFilter == 'all'
                       ? 'Student booking requests will appear here.'
-                      : 'No ${_selectedFilter} bookings found.',
+                      : 'No $_selectedFilter bookings found.',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.teal[600]?.withOpacity(0.8),
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.center,
@@ -1057,9 +1077,9 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFFFF9800),
-            Color(0xFFFF5722),
-            Color(0xFFE65100),
+            Color(0xFFF8FFFE), // Very light mint (almost white)
+            Color(0xFFEBF8F5), // Light mint green
+            Color(0xFFE0F4F0), // Soft seafoam
           ],
         ),
       ),
@@ -1073,33 +1093,37 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
               curve: Curves.elasticOut,
               builder: (context, double value, child) {
                 return Transform.scale(
-                  scale: value,
+                  scale: value.clamp(0.0, 1.0),
                   child: Container(
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.teal[100]?.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(50),
+                      border: Border.all(
+                        color: Colors.teal[200]?.withOpacity(0.5) ?? Colors.teal,
+                        width: 2,
+                      ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.calendar_today,
                       size: 50,
-                      color: Colors.white,
+                      color: Colors.teal[600],
                     ),
                   ),
                 );
               },
             ),
             const SizedBox(height: 32),
-            const CircularProgressIndicator(
-              color: Colors.white,
+            CircularProgressIndicator(
+              color: Colors.teal[400],
               strokeWidth: 3,
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Loading Bookings...',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.teal[700],
                 fontSize: 16,
               ),
             ),
@@ -1130,15 +1154,16 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
       backgroundColor: Colors.grey[50],
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Booking Management',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Colors.teal[700],
           ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: Colors.teal[700]),
         actions: [
           AnimatedBuilder(
             animation: _refreshAnimation,
@@ -1146,7 +1171,7 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
               return Transform.rotate(
                 angle: _refreshAnimation.value * 2 * 3.14159,
                 child: IconButton(
-                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  icon: Icon(Icons.refresh, color: Colors.teal[600]),
                   onPressed: _refreshData,
                 ),
               );
@@ -1167,9 +1192,9 @@ class _MentorBookingManagementPageState extends State<MentorBookingManagementPag
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFFFF9800),
-                      Color(0xFFFF5722),
-                      Color(0xFFE65100),
+                      Color(0xFFF8FFFE), // Very light mint (almost white)
+                      Color(0xFFEBF8F5), // Light mint green
+                      Color(0xFFE0F4F0), // Soft seafoam
                     ],
                   ),
                 ),
