@@ -1,49 +1,45 @@
-# Integrated Screening Tools Implementation
+# TODO: Implement Anonymous Messaging Features
 
-## Completed Tasks
-- [x] Analyze project structure and existing codebase
-- [x] Create comprehensive implementation plan
-- [x] Get user approval for the plan
+## Overview
+Enable anonymous messaging for students to send messages to mentors and peer support community spaces with hidden identities.
 
-## Pending Tasks
+## Steps
 
-### Phase 1: Setup and Dependencies
-- [x] Add required dependencies to pubspec.yaml (fl_chart, intl)
-- [ ] Update functions/index.js with screening data handling
+### 1. Create Anonymous Student-to-Mentor Chat Page
+- [x] Create `lib/anonymous_student_to_mentor_chat.dart`
+- [x] Implement UI for students to send anonymous messages to their mentors
+- [x] Use Firestore collection 'anonymous_messages' with fields: mentorId, message, timestamp, anonymousId
+- [x] Generate anonymousId for each message to ensure anonymity
+- [x] Add option to select mentor from available mentors in the same college
 
-### Phase 2: Core Data Models and Logic
-- [x] Create lib/questionnaire_data.dart with PHQ-9, GAD-7, GHQ questions and scoring logic
-- [x] Create lib/screening_service.dart for data operations
-- [x] Define Firestore schema for screenings collection
+### 2. Create Peer Support Forum Page
+- [ ] Create `lib/peer_support_forum.dart`
+- [ ] Implement group chat UI for anonymous student interactions
+- [ ] Use Firestore collection 'peer_support_messages' with fields: message, timestamp, anonymousId, college
+- [ ] Display messages with anonymous identifiers (e.g., "Anonymous User 1")
+- [ ] Ensure real identities are hidden
 
-### Phase 3: Student Features
-- [x] Create lib/screening_tools.dart - Main screening tools page
-- [x] Create lib/screening_results.dart - Results display with severity feedback
-- [x] Create lib/screening_history.dart - Progress tracking with charts
-- [x] Update lib/student_home.dart - Add screening tools navigation
+### 3. Create Mentor Anonymous Messages Page
+- [ ] Create `lib/mentor_anonymous_messages.dart`
+- [ ] Implement UI for mentors to view anonymous messages from students
+- [ ] Display messages without student identifiers
+- [ ] Allow mentors to respond anonymously if needed
 
-### Phase 4: Mentor Features
-- [ ] Create lib/mentor_screening_monitor.dart - Mentor monitoring interface
-- [ ] Update lib/mentor_home.dart - Add monitoring navigation
-- [ ] Update lib/student_list.dart - Add screening status indicators
+### 4. Update Student Home Page
+- [ ] Update `lib/student_home.dart` to navigate to anonymous chat and peer support pages
+- [ ] Replace TODO in Peer Support Forum card with actual navigation
+- [ ] Add new card for Anonymous Mentor Chat
 
-### Phase 5: Testing and Polish
-- [ ] Test complete flow from student screening to mentor monitoring
-- [ ] Add error handling and offline support
-- [ ] Polish UI/UX and animations
-- [ ] Add notifications for screening reminders
+### 5. Update Mentor Home Page
+- [ ] Update `lib/mentor_home.dart` to add button for viewing anonymous messages
+- [ ] Add "Anonymous Messages" action in the Quick Actions grid
 
-## Database Schema
-- screenings collection:
-  - studentId: String
-  - mentorId: String
-  - questionnaireType: String (PHQ9/GAD7/GHQ)
-  - scores: Map (question scores)
-  - totalScore: Number
-  - severity: String
-  - timestamp: Timestamp
-  - completedAt: Timestamp
+### 6. Update Firestore Indexes (if needed)
+- [ ] Check and update `firestore.indexes.json` for new collections
+- [ ] Ensure proper indexing for queries on mentorId, college, timestamp
 
-- students collection updates:
-  - lastScreeningDate: Timestamp
-  - screeningStatus: String (completed/overdue/pending)
+### 7. Test and Verify
+- [ ] Test anonymous messaging from student to mentor
+- [ ] Test peer support forum chat
+- [ ] Verify anonymity (no identifiable student info stored)
+- [ ] Test mentor view of anonymous messages

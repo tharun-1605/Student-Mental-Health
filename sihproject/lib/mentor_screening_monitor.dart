@@ -136,11 +136,11 @@ class _MentorScreeningMonitorPageState extends State<MentorScreeningMonitorPage>
     if (lastScreeningDate != null) {
       final daysSince = DateTime.now().difference(lastScreeningDate.toDate()).inDays;
       if (daysSince > 30) {
-        statusText = 'Overdue (${daysSince} days)';
+        statusText = 'Overdue ($daysSince days)';
         statusColor = Colors.red;
         statusIcon = Icons.warning;
       } else {
-        statusText = 'Completed (${daysSince} days ago)';
+        statusText = 'Completed ($daysSince days ago)';
         statusColor = Colors.green;
         statusIcon = Icons.check_circle;
       }
@@ -395,7 +395,7 @@ class _StudentScreeningDetailsPageState extends State<StudentScreeningDetailsPag
 
   Widget _buildScreeningHistoryCard(Map<String, dynamic> screening) {
     final timestamp = screening['timestamp'] as Timestamp?;
-    final date = timestamp != null ? timestamp.toDate() : null;
+    final date = timestamp?.toDate();
     final formattedDate = date != null ? DateFormat.yMMMd().format(date) : 'Unknown date';
 
     final severity = screening['severity'] ?? 'unknown';

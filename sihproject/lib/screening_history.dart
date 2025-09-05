@@ -56,7 +56,7 @@ class _ScreeningHistoryPageState extends State<ScreeningHistoryPage> {
             itemBuilder: (context, index) {
               final item = history[index];
               final timestamp = item['timestamp'] as Timestamp?;
-              final date = timestamp != null ? timestamp.toDate() : null;
+              final date = timestamp?.toDate();
               final formattedDate = date != null ? _formatDate(date) : 'Unknown date';
               final type = item['questionnaireType'] ?? 'Unknown';
               final severity = item['severity'] ?? 'Unknown';

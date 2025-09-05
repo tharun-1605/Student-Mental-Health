@@ -437,8 +437,9 @@ class QuestionnaireScorer {
     // GHQ-12 scoring: 0-0-1-1 for each question (0,0,1,1)
     int totalScore = 0;
     for (int score in scores) {
-      if (score == 2) totalScore += 1; // "Less than usual" = 1
-      else if (score == 3) totalScore += 1; // "Much less than usual" = 1
+      if (score == 2) {
+        totalScore += 1; // "Less than usual" = 1
+      } else if (score == 3) totalScore += 1; // "Much less than usual" = 1
     }
 
     if (totalScore <= 11) {

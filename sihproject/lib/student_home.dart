@@ -7,6 +7,7 @@ import 'resource_hub.dart';
 import 'profile_page.dart';
 import 'notifications_page.dart';
 import 'screening_tools.dart';
+import 'anonymous_student_to_mentor_chat.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -486,10 +487,20 @@ class _StudentHomePageState extends State<StudentHomePage>
                     const SizedBox(height: 16),
 
                     _buildFeatureCard(
+                      title: 'Anonymous Mentor Chat',
+                      subtitle: 'Chat anonymously with mentors from your college',
+                      icon: Icons.chat_bubble_outline,
+                      color: Colors.teal,
+                      onTap: () => _navigateTo(context, const AnonymousStudentToMentorChatPage()),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    _buildFeatureCard(
                       title: 'Peer Support Forum',
                       subtitle: 'Connect with other students anonymously',
                       icon: Icons.forum_outlined,
-                      color: Colors.teal,
+                      color: Colors.cyan,
                       onTap: () {
                         // TODO: Navigate to Peer Support Forum page
                         ScaffoldMessenger.of(context).showSnackBar(
