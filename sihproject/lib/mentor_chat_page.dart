@@ -253,10 +253,11 @@ class _MentorChatPageState extends State<MentorChatPage>
       duration: Duration(milliseconds: 300 + (index * 50)),
       curve: Curves.easeOutBack,
       builder: (context, double value, child) {
+        final clampedValue = value.clamp(0.0, 1.0);
         return Transform.scale(
-          scale: value,
+          scale: clampedValue,
           child: Opacity(
-            opacity: value,
+            opacity: clampedValue,
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
               child: Column(

@@ -475,7 +475,7 @@ class _AnonymousStudentToMentorChatPageState
   Widget _buildMentorCard(Map<String, dynamic> mentor, int index) {
     final mentorName = mentor['name'] as String? ?? 'Unknown Mentor';
     final department = mentor['department'] as String? ?? 'General';
-    
+
     // Generate consistent color for each mentor
     final colors = [
       [Colors.blue[400]!, Colors.blue[600]!],
@@ -492,12 +492,13 @@ class _AnonymousStudentToMentorChatPageState
       duration: Duration(milliseconds: 600 + (index * 100)),
       curve: Curves.easeOutBack,
       builder: (context, double value, child) {
+        final clampedValue = value.clamp(0.0, 1.0);
         return Transform.translate(
-          offset: Offset(50 * (1 - value), 0),
+          offset: Offset(50 * (1 - clampedValue), 0),
           child: Transform.scale(
-            scale: value,
+            scale: clampedValue,
             child: Opacity(
-              opacity: value,
+              opacity: clampedValue,
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Material(
@@ -632,10 +633,11 @@ class _AnonymousStudentToMentorChatPageState
       duration: Duration(milliseconds: 300 + (index * 50)),
       curve: Curves.easeOutBack,
       builder: (context, double value, child) {
+        final clampedValue = value.clamp(0.0, 1.0);
         return Transform.scale(
-          scale: value,
+          scale: clampedValue,
           child: Opacity(
-            opacity: value,
+            opacity: clampedValue,
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
               child: Column(
