@@ -15,6 +15,9 @@ class _ChatbotPageState extends State<ChatbotPage> {
   final List<Map<String, String>> _messages = [];
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
+  bool _isLoadingHistory = true;
+  String _userName = 'Student';
+  List<Map<String, String>> _chatHistory = [];
 
   final String _apiKey = 'AIzaSyD-gQAh3KURONK37LZN6bO_Qi816f6Eudc';
 
@@ -24,9 +27,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
   void initState() {
     super.initState();
     _model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: _apiKey);
-    _addBotMessage(
-      'Hello! I\'m here to help you with mental health support. How are you feeling today?',
-    );
+    _loadUserDataAndHistory();
   }
 
   void _addBotMessage(String message) {
@@ -71,10 +72,35 @@ class _ChatbotPageState extends State<ChatbotPage> {
         return;
       }
 
-      // Generate response using Vertex AI
+      // Prepare chat history context for prompt
+      String chatHistoryContext = '';
+      for (var msg in _chatHistory) {
+        String sender = msg['sender']!;
+        String text = msg['message']!;
+        if (sender == 'user') {
+          chatHistoryContext += 'User: $text\n';
+        } else {
+          chatHistoryContext += 'Bot: $text\n';
+        }
+      }
+      // Add current session messages
+      for (var msg in _messages) {
+        String sender = msg['sender']!;
+        String text = msg['message']!;
+        if (sender == 'user') {
+          chatHistoryContext += 'User: $text\n';
+        } else {
+          chatHistoryContext += 'Bot: $text\n';
+        }
+      }
+
+      // Generate response using Vertex AI with chat history and user name
       final prompt =
           '''
-You are a friendly mental health counselor chatbot for students, like a supportive friend. Analyze the user's message and respond in 4-5 lines with personalized counseling advice. Use a warm, conversational tone, include relevant emojis, and offer practical solutions or encouragement. Keep it empathetic, supportive, and varied—avoid paragraphs or lists. If the user shows signs of crisis, direct them to professional help immediately.
+You are a friendly mental health counselor chatbot for students, like a supportive friend. Your user's name is $_userName. Use the previous conversation as context to respond naturally and personally. Analyze the user's latest message and respond in 4-5 lines with personalized counseling advice. Use a warm, conversational tone, include relevant emojis, and offer practical solutions or encouragement. Keep it empathetic, supportive, and varied—avoid paragraphs or lists. If the user shows signs of crisis, direct them to professional help immediately.
+
+Conversation history:
+$chatHistoryContext
 User message: $message
 
 Provide a friendly counseling response in 4-5 lines:
@@ -154,6 +180,65 @@ Provide a friendly counseling response in 4-5 lines:
         'botResponse': botResponse,
         'timestamp': FieldValue.serverTimestamp(),
       });
+
+      // Add to chat history for future context
+      _chatHistory.add({'sender': 'user', 'message': userMessage});
+      _chatHistory.add({'sender': 'bot', 'message': botResponse});
+    }
+  }
+
+  Future<void> _loadUserDataAndHistory() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Load user name
+        final doc = await FirebaseFirestore.instance
+            .collection('students')
+            .doc(user.uid)
+            .get();
+        if (doc.exists) {
+          setState(() {
+            _userName = doc.data()!['name'] ?? 'Student';
+          });
+        }
+
+        // Load conversation history for context (but don't display)
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('conversations')
+            .where('userId', isEqualTo: user.uid)
+            .orderBy('timestamp', descending: false)
+            .get();
+
+        // Store history for prompt context
+        _chatHistory = [];
+        for (var doc in querySnapshot.docs) {
+          _chatHistory.add({
+            'sender': 'user',
+            'message': doc.data()['userMessage'] as String,
+          });
+          _chatHistory.add({
+            'sender': 'bot',
+            'message': doc.data()['botResponse'] as String,
+          });
+        }
+
+        setState(() {
+          _isLoadingHistory = false;
+        });
+
+        // Add personalized greeting
+        _addBotMessage(
+          'Hello $_userName! I\'m here to help you with mental health support. How are you feeling today?',
+        );
+      }
+    } catch (e) {
+      print('Error loading user data and history: $e');
+      setState(() {
+        _isLoadingHistory = false;
+      });
+      _addBotMessage(
+        'Hello! I\'m here to help you with mental health support. How are you feeling today?',
+      );
     }
   }
 
