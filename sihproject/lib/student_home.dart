@@ -8,6 +8,7 @@ import 'profile_page.dart';
 import 'notifications_page.dart';
 import 'screening_tools.dart';
 import 'anonymous_student_to_mentor_chat.dart';
+import 'stress_monitoring_dashboard.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -37,14 +38,15 @@ class _StudentHomePageState extends State<StudentHomePage>
     );
 
     // Initialize animations with optimized curves
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _mainController, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _mainController, curve: Curves.easeOut));
 
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-          CurvedAnimation(parent: _mainController, curve: Curves.easeOut),
-        );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.2),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _mainController, curve: Curves.easeOut));
 
     _loadUserData();
 
@@ -109,9 +111,7 @@ class _StudentHomePageState extends State<StudentHomePage>
     return Card(
       elevation: 4,
       shadowColor: color.withOpacity(0.3),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
@@ -144,19 +144,12 @@ class _StudentHomePageState extends State<StudentHomePage>
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey[400],
-                size: 18,
-              ),
+              Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 18),
             ],
           ),
         ),
@@ -460,7 +453,8 @@ class _StudentHomePageState extends State<StudentHomePage>
                       subtitle: 'View your booking status and details',
                       icon: Icons.event_note_outlined,
                       color: Colors.green,
-                      onTap: () => _navigateTo(context, const BookingStatusPage()),
+                      onTap: () =>
+                          _navigateTo(context, const BookingStatusPage()),
                     ),
 
                     const SizedBox(height: 16),
@@ -478,20 +472,38 @@ class _StudentHomePageState extends State<StudentHomePage>
 
                     _buildFeatureCard(
                       title: 'Mental Health Screening',
-                      subtitle: 'Take standardized assessments for depression, anxiety, and general health',
+                      subtitle:
+                          'Take standardized assessments for depression, anxiety, and general health',
                       icon: Icons.assessment_outlined,
                       color: Colors.indigo,
-                      onTap: () => _navigateTo(context, const ScreeningToolsPage()),
+                      onTap: () =>
+                          _navigateTo(context, const ScreeningToolsPage()),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    _buildFeatureCard(
+                      title: 'Stress Monitoring',
+                      subtitle: 'Monitor your stress levels in real-time',
+                      icon: Icons.monitor_heart_outlined,
+                      color: Colors.red,
+                      onTap: () => _navigateTo(
+                        context,
+                        const StressMonitoringDashboard(),
+                      ),
                     ),
 
                     const SizedBox(height: 16),
 
                     _buildFeatureCard(
                       title: 'Anonymous Mentor Chat',
-                      subtitle: 'Chat anonymously with mentors from your college',
-                      icon: Icons.chat_bubble_outline,
+                      subtitle: 'Chat anonymously with a mentor for guidance',
+                      icon: Icons.support_agent_outlined,
                       color: Colors.teal,
-                      onTap: () => _navigateTo(context, const AnonymousStudentToMentorChatPage()),
+                      onTap: () => _navigateTo(
+                        context,
+                        const AnonymousStudentToMentorChatPage(),
+                      ),
                     ),
 
                     const SizedBox(height: 16),
@@ -558,8 +570,7 @@ class _StudentHomePageState extends State<StudentHomePage>
                                 const SizedBox(height: 12),
                                 ElevatedButton(
                                   onPressed: () {
-                               
-                                // TODO: Show emergency contacts
+                                    // TODO: Show emergency contacts
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red[600],

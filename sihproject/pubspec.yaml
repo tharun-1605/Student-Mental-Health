@@ -36,26 +36,33 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # Firebase dependencies
-  firebase_core: ^3.0.0
-  firebase_auth: ^5.0.0
-  cloud_firestore: ^5.0.0
+  firebase_core: ^3.15.2
+  firebase_auth: ^5.7.0
+  cloud_firestore: ^5.6.12
   firebase_storage: ^12.0.0
-  firebase_messaging: ^15.0.0
+  firebase_messaging: ^15.2.10
 
+  device_info_plus: ^10.1.0
   # AI and ML
-  google_generative_ai: ^0.4.0
+  google_generative_ai: ^0.4.7
 
   # HTTP for API calls
-  http: ^1.2.0
+  http: ^1.5.0
 
   # URL launcher
-  url_launcher: ^6.2.0
+  url_launcher: ^6.3.2
 
   # Charting for progress tracking
-  fl_chart: ^0.66.0
+  fl_chart: ^0.66.2
 
   # Date formatting
-  intl: ^0.19.0
+  intl: ^0.18.1
+
+  # Wearable device integration
+  flutter_blue_plus: ^1.36.8
+  health: ^13.1.4
+  permission_handler: ^11.4.0
+  syncfusion_flutter_charts: ^24.2.9
 
 dev_dependencies:
   flutter_test:
