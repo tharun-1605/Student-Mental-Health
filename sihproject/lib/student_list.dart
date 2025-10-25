@@ -156,7 +156,7 @@ class _StudentListPageState extends State<StudentListPage>
         // Get screening status for this student
         final screeningQuery = await FirebaseFirestore.instance
             .collection('screenings')
-            .where('userId', isEqualTo: doc.id)
+            .where('studentId', isEqualTo: doc.id)
             .orderBy('timestamp', descending: true)
             .limit(1)
             .get();

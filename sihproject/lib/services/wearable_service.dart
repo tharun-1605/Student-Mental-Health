@@ -313,119 +313,66 @@ class WearableService {
   }
 
   Future<void> startHeartRateMonitoring() async {
-    if (_connectedDevice == null) {
-      throw Exception('No device connected');
-    }
-
-    final services = await _connectedDevice!.discoverServices();
-
-    // Log all services and characteristics for debugging
-    for (var service in services) {
-      print('Service: ${service.uuid}');
-      for (var char in service.characteristics) {
-        print('  Characteristic: ${char.uuid}');
-      }
-    }
-
-    BluetoothService? heartRateService;
-    BluetoothCharacteristic? heartRateCharacteristic;
-
-    // List of known heart rate service and characteristic UUIDs
-    final knownHeartRateServices = [
-      Guid('0000180d-0000-1000-8000-00805f9b34fb'), // Standard
-      Guid('0000fee0-0000-1000-8000-00805f9b34fb'), // Xiaomi/Boat
-      Guid('0000fee1-0000-1000-8000-00805f9b34fb'), // Xiaomi/Boat alternative
-    ];
-
-    final knownHeartRateCharacteristics = [
-      Guid('00002a37-0000-1000-8000-00805f9b34fb'), // Standard
-      Guid('00000006-0000-3512-2118-0009af100700'), // Xiaomi heart rate
-      Guid('00000001-0000-3512-2118-0009af100700'), // Xiaomi heart rate alternative
-      Guid('ae01'), // Boat Crest potential heart rate
-      Guid('ae02'), // Boat Crest potential
-      Guid('4a02'), // Boat Crest potential
-      Guid('ae3b'), // Boat Crest potential
-      Guid('ae3c'), // Boat Crest potential
-    ];
-
-    final knownHeartRateControlCharacteristics = [
-      Guid('00000002-0000-3512-2118-0009af100700'), // Xiaomi heart rate control
-    ];
-
-    // Try known services and characteristics
-    for (var serviceUuid in knownHeartRateServices) {
-      try {
-        heartRateService = services.firstWhere((s) => s.uuid == serviceUuid);
-        for (var charUuid in knownHeartRateCharacteristics) {
-          try {
-            heartRateCharacteristic = heartRateService.characteristics.firstWhere((c) => c.uuid == charUuid);
-            break;
-          } catch (e) {
-            // Continue to next characteristic
-          }
-        }
-        if (heartRateCharacteristic != null) break;
-      } catch (e) {
-        // Continue to next service
-      }
-    }
-
-    // If not found, try to find any characteristic that might be heart rate
-    if (heartRateCharacteristic == null) {
-      print('Known heart rate UUIDs not found, searching for alternatives...');
-      for (var service in services) {
-        for (var char in service.characteristics) {
-          String uuidStr = char.uuid.toString().toLowerCase();
-          if (uuidStr.contains('heart') || uuidStr.contains('hr') || uuidStr.contains('2a37') ||
-              uuidStr.contains('0006') || uuidStr.contains('0001') || uuidStr.contains('ae') ||
-              uuidStr.contains('4a')) {
-            heartRateService = service;
-            heartRateCharacteristic = char;
-            print('Found potential heart rate characteristic: ${char.uuid}');
-            break;
-          }
-        }
-        if (heartRateCharacteristic != null) break;
-      }
-    }
-
-    if (heartRateCharacteristic == null) {
-      throw Exception('Heart rate characteristic not found. Available services and characteristics logged above.');
-    }
-
-    print('Using heart rate characteristic: ${heartRateCharacteristic.uuid}');
-
-    // For Xiaomi/Boat devices, try to start heart rate measurement
-    if (heartRateService != null && knownHeartRateServices.skip(1).contains(heartRateService.uuid)) {
-      try {
-        var controlChar = heartRateService.characteristics.firstWhere(
-          (c) => knownHeartRateControlCharacteristics.contains(c.uuid),
-        );
-        await controlChar.write([0x01]); // Start heart rate measurement
-        print('Sent start command to heart rate control characteristic');
-        await Future.delayed(const Duration(seconds: 1)); // Wait for device to start
-      } catch (e) {
-        print('Failed to write to heart rate control characteristic: $e');
-      }
-    }
+    if (_connectedDevice == null) throw Exception('No device connected');
 
     try {
-      await heartRateCharacteristic.setNotifyValue(true);
-      heartRateCharacteristic.value.listen((value) {
-        final hr = _parseHeartRate(value);
-        print('Received heart rate: $hr from value: $value');
-        _heartRateController.add(hr);
-      });
+      final services = await _connectedDevice!.discoverServices();
 
-      // Read initial value
-      final initialValue = await heartRateCharacteristic.read();
-      final initialHr = _parseHeartRate(initialValue);
-      _heartRateController.add(initialHr);
+      // UUIDs for the specific Boat Watch
+      final dataServiceUuid = Guid('3802');
+      final dataCharacteristicUuid = Guid('4a02');
+      final commandServiceUuid = Guid('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
+      final commandCharacteristicUuid = Guid('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
+
+      final dataService = services.firstWhere((s) => s.uuid == dataServiceUuid);
+      final dataCharacteristic = dataService.characteristics.firstWhere((c) => c.uuid == dataCharacteristicUuid);
+
+      final commandService = services.firstWhere((s) => s.uuid == commandServiceUuid);
+      final commandCharacteristic = commandService.characteristics.firstWhere((c) => c.uuid == commandCharacteristicUuid);
+
+      print('Found data characteristic: ${dataCharacteristic.uuid}');
+      print('Found command characteristic: ${commandCharacteristic.uuid}');
+
+      // 1. Write command to start measurement
+      if (commandCharacteristic.properties.write) {
+        print('Writing start command to ${commandCharacteristic.uuid}');
+        await commandCharacteristic.write([0x01]);
+        print('Start command sent successfully.');
+      } else {
+        throw Exception('Command characteristic does not support write.');
+      }
+
+      // 2. Listen for notifications
+      if (dataCharacteristic.properties.notify) {
+        await dataCharacteristic.setNotifyValue(true);
+        dataCharacteristic.value.listen((value) {
+          print('Received data on ${dataCharacteristic.uuid}: $value');
+          final hr = _parseHeartRate(value);
+          if (hr > 0) {
+            print('Parsed valid heart rate: $hr');
+            _heartRateController.add(hr);
+          } else {
+            print('Parsed value is not a valid heart rate, ignoring.');
+          }
+        });
+        print('Successfully subscribed to notifications on ${dataCharacteristic.uuid}');
+      } else {
+        throw Exception('Characteristic does not support notify.');
+      }
+
     } catch (e) {
-      print('Failed to set notify value, trying periodic read: $e');
-      // Fallback: read periodically if notify not supported
-      _startPeriodicHeartRateRead(heartRateCharacteristic);
+      print('Error during heart rate monitoring setup: $e');
+      throw Exception('Could not start heart rate monitoring. See logs for details.');
     }
+  }
+
+  String _getCharacteristicProperties(BluetoothCharacteristic char) {
+    List<String> properties = [];
+    if (char.properties.read) properties.add('read');
+    if (char.properties.write) properties.add('write');
+    if (char.properties.notify) properties.add('notify');
+    if (char.properties.indicate) properties.add('indicate');
+    return properties.join(', ');
   }
 
   Timer? _periodicReadTimer;
@@ -451,124 +398,23 @@ class WearableService {
 
   int _parseHeartRate(List<int> value) {
     if (value.isEmpty) {
-      print('Empty heart rate value received');
-      return 0;
+      return 0; // No data
     }
 
-    print('Parsing heart rate value: $value');
-
-    // Try standard Bluetooth SIG heart rate format first
+    // The first byte is often a status/acknowledgment byte.
+    // The actual heart rate value is typically the second byte.
     if (value.length >= 2) {
-      final flags = value[0];
-      final is16bit = (flags & 0x01) != 0;
-
-      if (is16bit && value.length >= 3) {
-        return (value[2] << 8) + value[1];
-      } else {
-        return value[1];
-      }
+      return value[1];
     }
-
-    // Try Xiaomi/Boat format (little endian 16-bit)
-    if (value.length >= 2) {
-      return (value[1] << 8) + value[0];
-    }
-
-    // Fallback: assume single byte
-    return value[0];
+    
+    // If we receive a single byte, it's likely a status update (like [1] for 'started')
+    // and not the actual heart rate value, so we return 0.
+    return 0;
   }
 
   Future<void> startOxygenMonitoring() async {
-    if (_connectedDevice == null) {
-      throw Exception('No device connected');
-    }
-
-    final services = await _connectedDevice!.discoverServices();
-
-    BluetoothCharacteristic? oxygenCharacteristic;
-
-    // List of known oxygen/SpO2 characteristic UUIDs
-    final knownOxygenCharacteristics = [
-      Guid('00002a5f-0000-1000-8000-00805f9b34fb'), // Standard SpO2
-      Guid('00000007-0000-3512-2118-0009af100700'), // Xiaomi SpO2
-      Guid('ae0a'), // Boat Crest potential SpO2
-      Guid('ae0b'), // Boat Crest potential
-    ];
-
-    // Try known characteristics
-    for (var service in services) {
-      for (var charUuid in knownOxygenCharacteristics) {
-        try {
-          oxygenCharacteristic = service.characteristics.firstWhere((c) => c.uuid == charUuid);
-          break;
-        } catch (e) {
-          // Continue to next characteristic
-        }
-      }
-      if (oxygenCharacteristic != null) break;
-    }
-
-    // If not found, try to find any characteristic that might be oxygen
-    if (oxygenCharacteristic == null) {
-      print('Known oxygen UUIDs not found, searching for alternatives...');
-      for (var service in services) {
-        for (var char in service.characteristics) {
-          String uuidStr = char.uuid.toString().toLowerCase();
-          if (uuidStr.contains('spo2') || uuidStr.contains('oxygen') || uuidStr.contains('2a5f') ||
-              uuidStr.contains('0007') || uuidStr.contains('ae0')) {
-            oxygenCharacteristic = char;
-            print('Found potential oxygen characteristic: ${char.uuid}');
-            break;
-          }
-        }
-        if (oxygenCharacteristic != null) break;
-      }
-    }
-
-    if (oxygenCharacteristic == null) {
-      print('Oxygen characteristic not found, trying periodic read fallback');
-      // Fallback: try to find any characteristic that might work
-      for (var service in services) {
-        if (service.characteristics.isNotEmpty) {
-          oxygenCharacteristic = service.characteristics.first;
-          print('Using fallback oxygen characteristic: ${oxygenCharacteristic.uuid}');
-          break;
-        }
-      }
-    }
-
-    if (oxygenCharacteristic == null) {
-      throw Exception('Oxygen characteristic not found');
-    }
-
-    print('Using oxygen characteristic: ${oxygenCharacteristic.uuid}');
-
-    try {
-      await oxygenCharacteristic.setNotifyValue(true);
-      oxygenCharacteristic.value.listen((value) {
-        final oxygen = _parseOxygen(value);
-        print('Received oxygen: $oxygen from value: $value');
-        _oxygenController.add(oxygen);
-      });
-    } catch (e) {
-      print('Failed to set notify value for oxygen, trying periodic read: $e');
-      // Fallback: read periodically if notify not supported
-      _startPeriodicOxygenRead(oxygenCharacteristic);
-    }
-  }
-
-  void _startPeriodicOxygenRead(BluetoothCharacteristic characteristic) {
-    _periodicOxygenReadTimer?.cancel();
-    _periodicOxygenReadTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      try {
-        List<int> value = await characteristic.read();
-        final oxygen = _parseOxygen(value);
-        print('Periodic read oxygen: $oxygen from value: $value');
-        _oxygenController.add(oxygen);
-      } catch (e) {
-        print('Failed periodic read of oxygen: $e');
-      }
-    });
+    print('Oxygen monitoring not implemented for this device yet.');
+    // throw Exception('No device connected');
   }
 
   int _parseOxygen(List<int> value) {
@@ -593,81 +439,10 @@ class WearableService {
   }
 
   Future<void> startStressMonitoring() async {
-    if (_connectedDevice == null) {
-      throw Exception('No device connected');
-    }
-
-    final services = await _connectedDevice!.discoverServices();
-
-    BluetoothCharacteristic? stressCharacteristic;
-
-    // List of known stress characteristic UUIDs (these are hypothetical as stress is not standardized)
-    final knownStressCharacteristics = [
-      Guid('00000008-0000-3512-2118-0009af100700'), // Xiaomi stress (hypothetical)
-      Guid('ae0c'), // Boat Crest potential stress
-      Guid('ae0d'), // Boat Crest potential
-    ];
-
-    // Try known characteristics
-    for (var service in services) {
-      for (var charUuid in knownStressCharacteristics) {
-        try {
-          stressCharacteristic = service.characteristics.firstWhere((c) => c.uuid == charUuid);
-          break;
-        } catch (e) {
-          // Continue to next characteristic
-        }
-      }
-      if (stressCharacteristic != null) break;
-    }
-
-    // If not found, try to find any characteristic that might be stress
-    if (stressCharacteristic == null) {
-      print('Known stress UUIDs not found, searching for alternatives...');
-      for (var service in services) {
-        for (var char in service.characteristics) {
-          String uuidStr = char.uuid.toString().toLowerCase();
-          if (uuidStr.contains('stress') || uuidStr.contains('0008') || uuidStr.contains('ae0c') ||
-              uuidStr.contains('ae0d')) {
-            stressCharacteristic = char;
-            print('Found potential stress characteristic: ${char.uuid}');
-            break;
-          }
-        }
-        if (stressCharacteristic != null) break;
-      }
-    }
-
-    if (stressCharacteristic == null) {
-      print('Stress characteristic not found, trying periodic read fallback');
-      // Fallback: try to find any characteristic that might work
-      for (var service in services) {
-        if (service.characteristics.isNotEmpty) {
-          stressCharacteristic = service.characteristics.first;
-          print('Using fallback stress characteristic: ${stressCharacteristic.uuid}');
-          break;
-        }
-      }
-    }
-
-    if (stressCharacteristic == null) {
-      throw Exception('Stress characteristic not found');
-    }
-
-    print('Using stress characteristic: ${stressCharacteristic.uuid}');
-
-    try {
-      await stressCharacteristic.setNotifyValue(true);
-      stressCharacteristic.value.listen((value) {
-        final stress = _parseStress(value);
-        print('Received stress: $stress from value: $value');
-        _stressController.add(stress);
-      });
-    } catch (e) {
-      print('Failed to set notify value for stress, trying periodic read: $e');
-      // Fallback: read periodically if notify not supported
-      _startPeriodicStressRead(stressCharacteristic);
-    }
+    print('Stress monitoring not implemented for this device yet.');
+    // if (_connectedDevice == null) {
+    //   throw Exception('No device connected');
+    // }
   }
 
   void _startPeriodicStressRead(BluetoothCharacteristic characteristic) {
@@ -705,82 +480,11 @@ class WearableService {
   Timer? _periodicStepsReadTimer;
 
   Future<void> startStepsMonitoring() async {
-    if (_connectedDevice == null) {
-      throw Exception('No device connected');
-    }
+    print('Steps monitoring not implemented for this device yet.');
 
-    final services = await _connectedDevice!.discoverServices();
-
-    BluetoothCharacteristic? stepsCharacteristic;
-
-    // List of known steps characteristic UUIDs
-    final knownStepsCharacteristics = [
-      Guid('00002a53-0000-1000-8000-00805f9b34fb'), // Standard steps
-      Guid('00000009-0000-3512-2118-0009af100700'), // Xiaomi steps (hypothetical)
-      Guid('ae0e'), // Boat Crest potential steps
-      Guid('ae0f'), // Boat Crest potential
-    ];
-
-    // Try known characteristics
-    for (var service in services) {
-      for (var charUuid in knownStepsCharacteristics) {
-        try {
-          stepsCharacteristic = service.characteristics.firstWhere((c) => c.uuid == charUuid);
-          break;
-        } catch (e) {
-          // Continue to next characteristic
-        }
-      }
-      if (stepsCharacteristic != null) break;
-    }
-
-    // If not found, try to find any characteristic that might be steps
-    if (stepsCharacteristic == null) {
-      print('Known steps UUIDs not found, searching for alternatives...');
-      for (var service in services) {
-        for (var char in service.characteristics) {
-          String uuidStr = char.uuid.toString().toLowerCase();
-          if (uuidStr.contains('steps') || uuidStr.contains('0009') || uuidStr.contains('ae0e') ||
-              uuidStr.contains('ae0f')) {
-            stepsCharacteristic = char;
-            print('Found potential steps characteristic: ${char.uuid}');
-            break;
-          }
-        }
-        if (stepsCharacteristic != null) break;
-      }
-    }
-
-    if (stepsCharacteristic == null) {
-      print('Steps characteristic not found, trying periodic read fallback');
-      // Fallback: try to find any characteristic that might work
-      for (var service in services) {
-        if (service.characteristics.isNotEmpty) {
-          stepsCharacteristic = service.characteristics.first;
-          print('Using fallback steps characteristic: ${stepsCharacteristic.uuid}');
-          break;
-        }
-      }
-    }
-
-    if (stepsCharacteristic == null) {
-      throw Exception('Steps characteristic not found');
-    }
-
-    print('Using steps characteristic: ${stepsCharacteristic.uuid}');
-
-    try {
-      await stepsCharacteristic.setNotifyValue(true);
-      stepsCharacteristic.value.listen((value) {
-        final steps = _parseSteps(value);
-        print('Received steps: $steps from value: $value');
-        _stepsController.add(steps);
-      });
-    } catch (e) {
-      print('Failed to set notify value for steps, trying periodic read: $e');
-      // Fallback: read periodically if notify not supported
-      _startPeriodicStepsRead(stepsCharacteristic);
-    }
+    // if (_connectedDevice == null) {
+    //   throw Exception('No device connected');
+    // }
   }
 
   void _startPeriodicStepsRead(BluetoothCharacteristic characteristic) {

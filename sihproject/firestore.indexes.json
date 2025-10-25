@@ -40,6 +40,15 @@
       ]
     },
     {
+      "collectionGroup": "screenings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "anonymous_chats",
       "queryScope": "COLLECTION",
       "fields": [
