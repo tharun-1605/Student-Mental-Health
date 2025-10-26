@@ -608,8 +608,8 @@ class _ResourceHubPageState extends State<ResourceHubPage>
     try {
       // Note: Replace 'YOUR_API_KEY' with your actual Gemini API key
       final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: 'AIzaSyD-gQAh3KURONK37LZN6bO_Qi816f6Eudc',
+        model: 'gemini-2.5-flash',
+        apiKey: 'AIzaSyB46-6nMhyruIHk56LBvhA9kb6POz6lbPA',
       );
 
       String languageFilter = '';
@@ -622,7 +622,8 @@ class _ResourceHubPageState extends State<ResourceHubPage>
         categoryFilter = ' of type $_selectedCategory';
       }
 
-      final prompt = """
+      final prompt =
+          """
 Provide a JSON array of 5 mental health resources$categoryFilter related to counseling, relaxation, mindfulness, and building confidence$languageFilter. Each object should have: type (Videos, Audios, Articles), title, url, description.
 
 Example format:

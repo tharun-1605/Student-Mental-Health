@@ -19,14 +19,14 @@ class _ChatbotPageState extends State<ChatbotPage> {
   String _userName = 'Student';
   List<Map<String, String>> _chatHistory = [];
 
-  final String _apiKey = 'AIzaSyD-gQAh3KURONK37LZN6bO_Qi816f6Eudc';
+  final String _apiKey = 'AIzaSyB46-6nMhyruIHk56LBvhA9kb6POz6lbPA';
 
   late GenerativeModel _model;
 
   @override
   void initState() {
     super.initState();
-    _model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: _apiKey);
+    _model = GenerativeModel(model: 'gemini-2.5-flash', apiKey: _apiKey);
     _loadUserDataAndHistory();
   }
 
